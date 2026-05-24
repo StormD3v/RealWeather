@@ -7,14 +7,10 @@
         <header class="app-head">
           <div class="brand">
             <div>
-              <h1
-                class="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900 dark:text-white"
-              >
+              <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
                 LumiCast
               </h1>
-              <p
-                class="text-sm text-slate-600 dark:text-slate-300"
-              >
+              <p class="text-sm text-slate-600 dark:text-slate-300">
                 Live conditions and forecast
               </p>
             </div>
@@ -22,42 +18,23 @@
         </header>
 
         <section class="controls">
-          <input
-            class="search"
-            type="text"
-            placeholder="Enter city name (search worldwide)..."
-            v-model="cityInput"
-            @keyup.enter="getWeather"
-          />
+          <input class="search" :class="{ 'search-pulse': !hasSearchedCity && !weatherStore.loading }" type="text"
+            placeholder="Enter city name (search worldwide)..." v-model="cityInput" @keyup.enter="getWeather" />
           <button class="search-btn" @click="getWeather">Search</button>
           <div class="unit-toggle" aria-label="Temperature unit toggle">
-            <button
-              type="button"
-              class="unit-btn"
-              @click="toggleUnit"
-            >
+            <button type="button" class="unit-btn" @click="toggleUnit">
               {{ useCelsius ? '°C' : '°F' }}
             </button>
           </div>
-          <WeatherSourceBadge
-            :source="weatherSource"
-            :timestamp="weatherSourceTime"
-          />
+          <WeatherSourceBadge :source="weatherSource" :timestamp="weatherSourceTime" />
           <div class="recent-searches" v-if="searchHistory.length">
-            <button
-              v-for="city in searchHistory"
-              :key="'recent-' + city"
-              type="button"
-              class="recent-chip"
-              @click="searchFromHistory(city)"
-            >
+            <button v-for="city in searchHistory" :key="'recent-' + city" type="button" class="recent-chip"
+              @click="searchFromHistory(city)">
               {{ city }}
             </button>
           </div>
-          <div
-            v-if="weatherStore.loading || weatherStore.error || searchSuccessMessage || detectingLocation"
-            class="search-feedback"
-          >
+          <div v-if="weatherStore.loading || weatherStore.error || searchSuccessMessage || detectingLocation"
+            class="search-feedback">
             <div v-if="detectingLocation" class="detecting-location">
               <span class="loading-spinner"></span>
               <span>Detecting location...</span>
@@ -83,23 +60,16 @@
         </div>
       </section>
 
-      <section v-if="!weatherStore.currentWeather && !weatherStore.error && !weatherStore.loading" class="empty-card">
-        <div class="sky-icon">
-          <div class="sun"></div>
-          <div class="cloud c1"></div>
-          <div class="cloud c2"></div>
-          <div class="rain">
-            <span
-              class="drop"
-              v-for="n in 8"
-              :key="'empty-drop-' + n"
-              :style="{ '--i': n }"
-            ></span>
+      <section v-if="!weatherStore.currentWeather && !weatherStore.error && !weatherStore.loading"
+        class="empty-card empty-welcome">
+        <div class="empty-welcome-content">
+          <h2 class="empty-logo">LumiCast</h2>
+          <p class="empty-tagline">Search any city to get started</p>
+          <div class="empty-search-cta">
+            <input class="search search-pulse" type="text" placeholder="Try: San Francisco" v-model="cityInput"
+              @keyup.enter="getWeather" />
+            <button class="search-btn" @click="getWeather">Search</button>
           </div>
-        </div>
-        <div>
-          <h2>Search for a city</h2>
-          <p>Current weather, key metrics, and a 5-day hybrid forecast will appear here.</p>
           <p v-if="geolocationDenied" class="meta-line">Location access denied. Search by city to continue.</p>
         </div>
       </section>
@@ -115,120 +85,68 @@
       <div class="dashboard-flow">
         <section class="current-impact-section dashboard-section two-column-section">
           <div class="dashboard-card current-weather">
-            <CurrentWeatherCard
-              :loading="weatherStore.loading"
-              :error="weatherStore.error"
-              :current-weather="weatherStore.currentWeather"
-              :main-weather-icon-class="mainWeatherIconClass"
-              :weather-icon="weatherIcon"
-              :temp-display-key="tempDisplayKey"
-              :unit-symbol="unitSymbol"
-              :hourly-forecast="hourlyForecast"
-              :impact-score="weatherStore.impactScore"
+            <CurrentWeatherCard :loading="weatherStore.loading" :error="weatherStore.error"
+              :current-weather="weatherStore.currentWeather" :main-weather-icon-class="mainWeatherIconClass"
+              :weather-icon="weatherIcon" :temp-display-key="tempDisplayKey" :unit-symbol="unitSymbol"
+              :hourly-forecast="hourlyForecast" :impact-score="weatherStore.impactScore"
               :trend-indicators="weatherStore.trendIndicators"
-              :activity-recommendations="weatherStore.activityRecommendations"
-              :hourly-forecast-key="hourlyForecastKey"
-              :to-display-temp="toDisplayTemp"
-              :capitalize="capitalize"
-              :format-hour="formatHour"
-              :icon-svg="iconSvg"
-            />
+              :activity-recommendations="weatherStore.activityRecommendations" :hourly-forecast-key="hourlyForecastKey"
+              :to-display-temp="toDisplayTemp" :capitalize="capitalize" :format-hour="formatHour" :icon-svg="iconSvg" />
           </div>
 
           <div class="dashboard-card stability-ring">
-            <WeatherImpactCard
-              :impact-score="weatherStore.impactScore"
-              :current-weather="weatherStore.currentWeather"
-              :hourly-forecast="hourlyForecast"
-              :trend-indicators="weatherStore.trendIndicators"
-              :unit-symbol="unitSymbol"
-            />
+            <WeatherImpactCard :impact-score="weatherStore.impactScore" :current-weather="weatherStore.currentWeather"
+              :hourly-forecast="hourlyForecast" :trend-indicators="weatherStore.trendIndicators"
+              :unit-symbol="unitSymbol" />
           </div>
         </section>
 
         <section class="ai-insights-section dashboard-section">
           <div class="dashboard-card panel-weather-copilot">
-            <WeatherCopilot
-              :loading="weatherStore.loading"
-              :weather-data="sharedWeatherData"
-            />
+            <WeatherCopilot :loading="weatherStore.loading" :weather-data="sharedWeatherData" />
           </div>
         </section>
 
         <section class="next-12-hours-section dashboard-section horizontal-scroll-section">
           <div class="dashboard-card panel-next-12">
-            <Next12HoursCard
-              :hourly-forecast="hourlyForecast"
-              :format-hour="formatHour"
-              :icon-svg="iconSvg"
-              :to-display-temp="toDisplayTemp"
-              :unit-symbol="unitSymbol"
-            />
+            <Next12HoursCard :hourly-forecast="hourlyForecast" :format-hour="formatHour" :icon-svg="iconSvg"
+              :to-display-temp="toDisplayTemp" :unit-symbol="unitSymbol" />
           </div>
         </section>
 
         <section class="hourly-decision-section dashboard-section horizontal-scroll-section">
           <div class="dashboard-card panel-hourly-decision-timeline">
-            <HourlyDecisionTimeline
-              :weather-data="sharedWeatherData"
-              :hourly-forecast="hourlyForecast"
-              :current-weather="weatherStore.currentWeather"
-              :icon-svg="iconSvg"
-              :to-display-temp="toDisplayTemp"
-              :unit-symbol="unitSymbol"
-            />
+            <HourlyDecisionTimeline :weather-data="sharedWeatherData" :hourly-forecast="hourlyForecast"
+              :current-weather="weatherStore.currentWeather" :icon-svg="iconSvg" :to-display-temp="toDisplayTemp"
+              :unit-symbol="unitSymbol" />
           </div>
         </section>
 
         <section class="planning-section dashboard-section three-column-section">
           <div class="dashboard-card panel-activity-recommendations">
-            <ActivityRecommendationsCard
-              :recommendations="weatherStore.activityRecommendations"
-              :current-weather="weatherStore.currentWeather"
-            />
+            <ActivityRecommendationsCard :recommendations="weatherStore.activityRecommendations"
+              :current-weather="weatherStore.currentWeather" />
           </div>
 
           <div class="dashboard-card panel-risk-alerts">
-            <WeatherRiskAlertsCard
-              :forecast-data="hourlyTrend"
-              :current-weather="weatherStore.currentWeather"
-            />
+            <WeatherRiskAlertsCard :forecast-data="hourlyTrend" :current-weather="weatherStore.currentWeather" />
           </div>
 
           <div class="dashboard-card panel-demand-forecast">
-            <BestTimeCard
-              :hourly-forecast="hourlyForecast"
-              :current-weather="weatherStore.currentWeather"
-            />
+            <BestTimeCard :hourly-forecast="hourlyForecast" :current-weather="weatherStore.currentWeather" />
           </div>
         </section>
 
         <section class="seven-day-section dashboard-section">
           <div class="dashboard-card seven-day-forecast">
-            <SevenDayForecastCard
-              :daily-forecast="dailyForecast"
-              :format-day="formatDay"
-              :icon-svg="iconSvg"
-              :to-display-temp="toDisplayTemp"
-              :unit-symbol="unitSymbol"
-            />
+            <SevenDayForecastCard :daily-forecast="dailyForecast" :format-day="formatDay" :icon-svg="iconSvg"
+              :to-display-temp="toDisplayTemp" :unit-symbol="unitSymbol" />
           </div>
         </section>
 
-        <section class="weather-trends-chart-section dashboard-section two-column-section">
-          <div class="dashboard-card panel-weather-trends">
-            <WeatherTrendsCard
-              :current-weather="weatherStore.currentWeather"
-              :trend-indicators="weatherStore.trendIndicators"
-              :unit-symbol="unitSymbol"
-            />
-          </div>
-
+        <section class="weather-trends-chart-section dashboard-section single-column-section">
           <div class="dashboard-card panel-trend-charts">
-            <WeatherTrendCharts
-              :points="hourlyTrend"
-              :unit-symbol="unitSymbol"
-            />
+            <WeatherTrendCharts :points="hourlyTrend" :unit-symbol="unitSymbol" />
           </div>
         </section>
 
@@ -246,7 +164,7 @@
 
 
 <script setup>
-import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, onBeforeUnmount, onErrorCaptured, onMounted, ref, watch } from 'vue'
 import { useWeatherStore } from '@/stores/weather'
 import WeatherBackground from '@/components/WeatherBackground.vue'
 import CurrentWeatherCard from '@/components/CurrentWeatherCard.vue'
@@ -260,11 +178,16 @@ import ActivityRecommendationsCard from '@/components/ActivityRecommendationsCar
 import Next12HoursCard from '@/components/Next12HoursCard.vue'
 import HourlyDecisionTimeline from '@/components/HourlyDecisionTimeline.tsx'
 import SevenDayForecastCard from '@/components/SevenDayForecastCard.vue'
-import WeatherTrendsCard from '@/components/WeatherTrendsCard.vue'
 import WeatherRiskAlertsCard from '@/components/WeatherRiskAlertsCard.vue'
 import BestTimeCard from '@/components/BestTimeCard.vue'
 
-const WeatherTrendCharts = defineAsyncComponent(() => import('@/components/WeatherTrendCharts.vue'))
+const WeatherTrendCharts = defineAsyncComponent({
+  loader: () => import('@/components/WeatherTrendCharts.vue'),
+  loadingComponent: { template: '<div class="chart-skeleton"></div>' },
+  errorComponent: { template: '<div class="chart-error">Failed to load chart.</div>' },
+  delay: 200,
+  timeout: 8000
+})
 
 const cityInput = ref('')
 const weatherStore = useWeatherStore()
@@ -280,7 +203,9 @@ const SEARCH_HISTORY_KEY = 'weather-search-history'
 const unitSymbol = computed(() => (useCelsius.value ? 'C' : 'F'))
 const hourlyForecast = computed(() => weatherStore.hourlyForecast)
 const hourlyTrend = computed(() => weatherStore.hourlyTrend)
-const dailyForecast = computed(() => weatherStore.forecast?.slice(0, 7) || [])
+const dailyForecast = computed(() =>
+  weatherStore.forecast?.slice(0, 7) ?? []
+)
 const weatherSource = computed(() => weatherStore.lastSource)
 const weatherSourceTime = computed(() => weatherStore.lastUpdatedAt)
 const hourlyForecastKey = computed(() => hourlyForecast.value.map((slot) => slot.dt).join('-'))
@@ -360,7 +285,10 @@ function setFaviconFromWeather(condition) {
 }
 
 function normalizeCity(city) {
-  return city.trim().replace(/\s+/g, ' ')
+  return city
+    .trim()
+    .replace(/[^a-zA-Z\s\-']/g, '')
+    .slice(0, 60)
 }
 
 function loadSearchHistory() {
@@ -443,7 +371,7 @@ async function searchFromHistory(city) {
 
 async function requestInitialWeather() {
   detectingLocation.value = true
-  
+
   const position = await getCurrentPosition().catch((error) => {
     geolocationDenied.value = error?.code === 1
     console.error('[app] Geolocation unavailable, showing empty state', error)
@@ -462,6 +390,21 @@ async function requestInitialWeather() {
   }
 }
 
+function handleOnline() {
+  if (!weatherStore.currentWeather) {
+    requestInitialWeather()
+  }
+}
+
+function handleOffline() {
+  // silently note offline status
+}
+
+onErrorCaptured((error) => {
+  // Silently capture component errors without showing banner
+  return false
+})
+
 function toggleUnit() {
   useCelsius.value = !useCelsius.value
 }
@@ -470,6 +413,8 @@ onMounted(() => {
   document.documentElement.classList.add('dark')
   loadSearchHistory()
   requestInitialWeather()
+  window.addEventListener('online', handleOnline)
+  window.addEventListener('offline', handleOffline)
 })
 
 watch(
@@ -483,7 +428,22 @@ watch(
 onBeforeUnmount(() => {
   clearDebouncedSearch()
   document.body.style.overflow = ''
+  window.removeEventListener('online', handleOnline)
+  window.removeEventListener('offline', handleOffline)
 })
+
+watch(
+  () => weatherStore.currentWeather,
+  () => {
+    if (import.meta.env.DEV) {
+      console.group('[LumiCast Debug]')
+      console.log('Weather loaded:', weatherStore.currentWeather?.name)
+      console.log('Source:', weatherStore.lastSource)
+      console.log('Hourly points:', weatherStore.hourlyForecast?.length)
+      console.groupEnd()
+    }
+  }
+)
 
 function toDate(value) {
   return new Date(value.replace(' ', 'T'))
@@ -530,7 +490,20 @@ function rainChance(currentWeather) {
   return popPercent(weatherStore.hourlyForecast[0] || {})
 }
 
+const iconCache = new Map()
+
 function iconSvg(main) {
+  const cacheKey = main || 'Clear'
+  if (iconCache.has(cacheKey)) {
+    return iconCache.get(cacheKey)
+  }
+
+  const svg = generateIconSvg(cacheKey)
+  iconCache.set(cacheKey, svg)
+  return svg
+}
+
+function generateIconSvg(main) {
   const sun = `
     <svg viewBox="0 0 64 64" aria-hidden="true">
       <defs>
@@ -541,15 +514,15 @@ function iconSvg(main) {
       </defs>
       <circle cx="32" cy="32" r="12" fill="url(#sun-grad)" />
       ${Array.from({ length: 8 })
-        .map((_, i) => {
-          const angle = (i * Math.PI) / 4
-          const x1 = 32 + Math.cos(angle) * 18
-          const y1 = 32 + Math.sin(angle) * 18
-          const x2 = 32 + Math.cos(angle) * 26
-          const y2 = 32 + Math.sin(angle) * 26
-          return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#ffd166" stroke-width="3" stroke-linecap="round" />`
-        })
-        .join('')}
+      .map((_, i) => {
+        const angle = (i * Math.PI) / 4
+        const x1 = 32 + Math.cos(angle) * 18
+        const y1 = 32 + Math.sin(angle) * 18
+        const x2 = 32 + Math.cos(angle) * 26
+        const y2 = 32 + Math.sin(angle) * 26
+        return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#ffd166" stroke-width="3" stroke-linecap="round" />`
+      })
+      .join('')}
     </svg>
   `
 
@@ -804,11 +777,32 @@ html.dark .sky-bg {
   border-radius: 26px;
   background: rgba(6, 16, 34, 0.62);
   border: 1px solid var(--line);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(14px);
   box-shadow: 0 12px 28px rgba(5, 17, 35, 0.12);
   animation: rise 0.55s ease;
   display: grid;
   gap: 0;
+}
+
+.chart-skeleton,
+.chart-error {
+  min-height: 280px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+}
+
+.chart-skeleton {
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.chart-error {
+  padding: 24px;
+  text-align: center;
 }
 
 .app-head {
@@ -820,7 +814,7 @@ html.dark .sky-bg {
 
 .hero-panel {
   background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(14px);
   border: 1px solid var(--line);
   padding: 20px;
   border-radius: 14px;
@@ -942,6 +936,63 @@ html.dark .sky-bg {
   border: 1px solid var(--line);
 }
 
+.empty-card.empty-welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 32px;
+  min-height: 320px;
+}
+
+.empty-card.empty-welcome .empty-welcome-content {
+  max-width: 560px;
+  width: 100%;
+}
+
+.empty-card.empty-welcome .empty-logo {
+  margin: 0 0 14px;
+  font-size: clamp(32px, 6vw, 48px);
+  letter-spacing: -0.04em;
+}
+
+.empty-card.empty-welcome .empty-tagline {
+  margin: 0 0 24px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+}
+
+.empty-card.empty-welcome .empty-search-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.empty-card.empty-welcome .search {
+  width: min(340px, 100%);
+}
+
+.empty-card.empty-welcome .search-pulse {
+  animation: pulse-border 2.2s ease-in-out infinite;
+  border-color: rgba(156, 163, 175, 0.8);
+}
+
+@keyframes pulse-border {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.06);
+  }
+}
+
 .empty-card h2 {
   margin: 0 0 6px;
 }
@@ -975,6 +1026,11 @@ html.dark .sky-bg {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
+  min-height: 200px;
+}
+
+.current-impact-section {
+  min-height: 320px;
 }
 
 .dashboard-section {
@@ -1009,6 +1065,7 @@ html.dark .sky-bg {
 }
 
 @media (max-width: 600px) {
+
   .dashboard-section,
   .two-column-section,
   .three-column-section {
@@ -1070,6 +1127,11 @@ html.dark .sky-bg {
 
 .dashboard-flow {
   animation: weatherResultsIn 0.4s ease both;
+}
+
+/* Hint to compositor for animated transitions */
+.dashboard-flow {
+  will-change: opacity;
 }
 
 .panel-weather-copilot,
@@ -1188,6 +1250,11 @@ html.dark .sky-bg {
   border: 2px solid rgba(255, 255, 255, 0.35);
   border-top-color: var(--accent);
   animation: spin 0.75s linear infinite;
+}
+
+/* Only hint will-change for this small animated element */
+.loading-spinner {
+  will-change: transform;
 }
 
 .error-banner {
@@ -1475,7 +1542,7 @@ html.dark .main-weather-icon {
 .main-weather-icon svg {
   width: 180px;
   height: 135px;
-  will-change: transform, opacity, filter;
+  will-change: transform;
 }
 
 .main-weather-icon.is-clear svg {
@@ -1565,20 +1632,24 @@ html.dark .main-weather-icon {
 }
 
 @keyframes pulse {
+
   0%,
   100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.08);
   }
 }
 
 @keyframes float {
+
   0%,
   100% {
     transform: translateX(0);
   }
+
   50% {
     transform: translateX(8px);
   }
@@ -1589,6 +1660,7 @@ html.dark .main-weather-icon {
     transform: translateY(0);
     opacity: 0.65;
   }
+
   100% {
     transform: translateY(18px);
     opacity: 0;
@@ -1599,16 +1671,19 @@ html.dark .main-weather-icon {
   0% {
     transform: translateX(0);
   }
+
   100% {
     transform: translateX(calc(100vw + 520px));
   }
 }
 
 @keyframes drift {
+
   0%,
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(14px);
   }
@@ -1619,6 +1694,7 @@ html.dark .main-weather-icon {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1630,9 +1706,11 @@ html.dark .main-weather-icon {
     transform: translate3d(0, -20px, 0) rotate(12deg);
     opacity: 0;
   }
+
   10% {
     opacity: 0.6;
   }
+
   100% {
     transform: translate3d(14px, calc(100vh + 20px), 0) rotate(12deg);
     opacity: 0;
@@ -1643,39 +1721,48 @@ html.dark .main-weather-icon {
   0% {
     transform: translate3d(0, -14px, 0);
   }
+
   50% {
     transform: translate3d(12px, 48vh, 0);
   }
+
   100% {
     transform: translate3d(-8px, 105vh, 0);
   }
 }
 
 @keyframes weatherTwinkle {
+
   0%,
   100% {
     opacity: 0.35;
   }
+
   50% {
     opacity: 1;
   }
 }
 
 @keyframes weatherLightning {
+
   0%,
   92%,
   100% {
     opacity: 0;
   }
+
   93% {
     opacity: 0.34;
   }
+
   94% {
     opacity: 0.06;
   }
+
   95% {
     opacity: 0.42;
   }
+
   96% {
     opacity: 0;
   }
@@ -1685,27 +1772,32 @@ html.dark .main-weather-icon {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
 
 @keyframes iconCloudFloat {
+
   0%,
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-6px);
   }
 }
 
 @keyframes iconRainDrop {
+
   0%,
   100% {
     transform: translateY(0);
     filter: drop-shadow(0 0 0 rgba(79, 195, 247, 0));
   }
+
   50% {
     transform: translateY(5px);
     filter: drop-shadow(0 8px 4px rgba(79, 195, 247, 0.2));
@@ -1713,20 +1805,24 @@ html.dark .main-weather-icon {
 }
 
 @keyframes iconStormPulse {
+
   0%,
   84%,
   100% {
     transform: scale(1);
     filter: brightness(1);
   }
+
   86% {
     transform: scale(1.03);
     filter: brightness(1.5);
   }
+
   88% {
     transform: scale(1);
     filter: brightness(1.1);
   }
+
   90% {
     transform: scale(1.04);
     filter: brightness(1.6);
@@ -1737,29 +1833,35 @@ html.dark .main-weather-icon {
   0% {
     transform: translateY(-3px);
   }
+
   50% {
     transform: translateY(4px);
   }
+
   100% {
     transform: translateY(-2px);
   }
 }
 
 @keyframes iconDrizzleFloat {
+
   0%,
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(3px);
   }
 }
 
 @keyframes iconFogFade {
+
   0%,
   100% {
     opacity: 0.95;
   }
+
   50% {
     opacity: 0.68;
   }
@@ -1772,10 +1874,12 @@ html.dark .main-weather-icon {
 }
 
 @keyframes softFade {
+
   0%,
   100% {
     opacity: 0.7;
   }
+
   50% {
     opacity: 1;
   }
@@ -1922,7 +2026,7 @@ html.dark .main-weather-icon {
     padding: 14px !important;
   }
 
-  .hourly-decision-timeline > div {
+  .hourly-decision-timeline>div {
     gap: 8px !important;
   }
 
@@ -2012,6 +2116,48 @@ html.dark .main-weather-icon {
   }
 }
 
+/* Mobile-specific optimizations */
+@media (max-width: 600px) {
+
+  .dashboard-card,
+  .weather-shell,
+  .hero-panel {
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+
+  /* Reduce or disable heavy animations on mobile */
+}
+
+@media (max-width: 600px) and (prefers-reduced-motion: no-preference) {
+  .main-weather-icon.is-clear svg {
+    animation-duration: 30s;
+  }
+
+  .haze-1,
+  .haze-2,
+  .haze-3 {
+    animation: none !important;
+  }
+
+  .bg-cloud {
+    animation: none !important;
+  }
+}
+
+/* Promote GPU compositing for scrollable containers */
+.horizontal-scroll-section .dashboard-card,
+.hourly-scroll {
+  transform: translateZ(0);
+}
+
+/* Defer rendering of below-fold heavy sections */
+.seven-day-section,
+.weather-trends-chart-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 400px;
+}
+
 .dashboard-card h3,
 .current-weather-card h3,
 .weather-impact-card h3,
@@ -2074,7 +2220,9 @@ html.dark .main-weather-icon {
   }
 }
 
-html, body, #app {
+html,
+body,
+#app {
   overflow-x: hidden;
   width: 100%;
 }

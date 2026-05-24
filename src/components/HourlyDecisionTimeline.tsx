@@ -83,20 +83,29 @@ export default defineComponent({
         const temp = toNumber(slot?.main?.temp, 0)
         const humidity = toNumber(slot?.main?.humidity, toNumber((current as any)?.main?.humidity, 50))
         const wind = toNumber(slot?.wind?.speed, toNumber((current as any)?.wind?.speed, 0))
-        const rainProbability = Math.round(toNumber(slot?.pop, 0))
+        const rawPop = toNumber(slot?.pop, 0)
+        const rainProbability = rawPop > 1 ? Math.round(rawPop) : Math.round(rawPop * 100)
+        const precipitationAmount = toNumber(slot?.rain?.['1h'] ?? slot?.rain?.['3h'] ?? 0)
         const uv = toNumber(slot?.uvi, currentUv)
         const condition = String(slot?.weather?.[0]?.main || '')
         const comfortScore = computeComfortScore(temp, humidity, wind)
 
-        let recommendation = 'Great time to go outside!'
+        // Avoid recommending "Great time" when there's measurable precipitation
+        const hasPrecipitation = precipitationAmount > 0 || rainProbability >= 30
+
+        let recommendation = 'Not the best outside. Keep trips short.'
         if (rainProbability > 50) {
           recommendation = 'Stay indoors if possible.'
-        } else if (uv > 7) {
-          recommendation = 'The sun is strong. Stay in shade.'
-        } else if (wind > 30) {
-          recommendation = "It's windy out. Stay sheltered if you can."
-        } else if (temp < 18 || temp > 25 || comfortScore < 65) {
-          recommendation = 'Not the best outside. Keep trips short.'
+        } else if (!hasPrecipitation) {
+          // Only consider positive recommendations when no precipitation and low rain chance
+          recommendation = 'Great time to go outside!'
+          if (uv > 7) {
+            recommendation = 'The sun is strong. Stay in shade.'
+          } else if (wind > 30) {
+            recommendation = "It's windy out. Stay sheltered if you can."
+          } else if (temp < 18 || temp > 25 || comfortScore < 65) {
+            recommendation = 'Not the best outside. Keep trips short.'
+          }
         }
 
         return {

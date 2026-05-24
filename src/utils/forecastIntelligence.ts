@@ -111,6 +111,13 @@ export function generateForecastInsights(
   const uv = toNum(weatherData.uvIndex)
   const condition = String(weatherData.condition || '').toLowerCase()
   const rainNow = toNum(weatherData.precipitationProbability)
+  // normalize rain probability to percent (0-100)
+  const rainNowPercent = rainNow > 1 ? Math.round(rainNow) : Math.round(rainNow * 100)
+  const isRainy =
+    rainNowPercent >= 60 ||
+    condition.includes('rain') ||
+    condition.includes('drizzle') ||
+    condition.includes('thunder')
   let bestWindow: { start: string; end: string } | null = null
   let bestScore = -Infinity
   const windowSize = Math.min(4, Math.max(3, hourly.length >= 4 ? 4 : 3))
@@ -140,11 +147,17 @@ export function generateForecastInsights(
     }
   }
 
-  const productivityText = bestWindow
-    ? `Best time: ${bestWindow.start}-${bestWindow.end} is great for getting things done outside.`
-    : temp >= 18 && temp <= 25 && rainNow < 30
-      ? 'Best time: Now is good for outdoor work. Do important tasks soon.'
-      : 'Best time: Mix of conditions. Do outdoor tasks when it driest.'
+  let productivityText = ''
+  if (isRainy) {
+    productivityText =
+      'Best time: Wait for the rain to ease before going outside. Check the hourly forecast below.'
+  } else {
+    productivityText = bestWindow
+      ? `Best time: ${bestWindow.start}-${bestWindow.end} is great for getting things done outside.`
+      : temp >= 18 && temp <= 25 && rainNowPercent < 30
+        ? 'Best time: Now is good for outdoor work. Do important tasks soon.'
+        : 'Best time: Mix of conditions. Do outdoor tasks when it driest.'
+  }
 
   const firstRainRiskSlot = hourly.find((slot) => toPercent(slot?.pop) > 50)
   const windySlot = hourly.find((slot) => toNum(slot?.wind?.speed) > 30)
@@ -153,22 +166,20 @@ export function generateForecastInsights(
     condition.includes('storm') ||
     condition.includes('snow')
 
-  let warningText =
-    'Weather heads-up: No big issues right now. Keep your plans.'
-  if (firstRainRiskSlot || rainNow > 50) {
+  let warningText = 'Weather heads-up: No big issues right now. Keep your plans.'
+  if (isRainy) {
+    warningText = 'Weather heads-up: It is raining now. Carry an umbrella or stay indoors.'
+  } else if (firstRainRiskSlot || rainNowPercent > 50) {
     const atTime = firstRainRiskSlot
       ? ` around ${toHourLabel(firstRainRiskSlot.dt_txt || firstRainRiskSlot.dt)}`
       : ''
     warningText = `Weather heads-up: Rain chance is high${atTime}. Do outdoor tasks early. Move inside later.`
   } else if (uv > 7) {
-    warningText =
-      'Weather heads-up: The sun is strong. Stay in shade midday.'
+    warningText = 'Weather heads-up: The sun is strong. Stay in shade midday.'
   } else if (windySlot || wind > 30) {
-    warningText =
-      'Weather heads-up: It is very windy. Secure loose items outside.'
+    warningText = 'Weather heads-up: It is very windy. Secure loose items outside.'
   } else if (severeCondition) {
-    warningText =
-      'Weather heads-up: Storms might happen. Have backup plans ready.'
+    warningText = 'Weather heads-up: Storms might happen. Have backup plans ready.'
   }
 
   let comfortText =

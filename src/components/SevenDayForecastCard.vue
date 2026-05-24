@@ -1,32 +1,37 @@
 <template>
-  <div class="seven-day-forecast-card">
-    <h3>7 Day Forecast</h3>
-    
-    <div class="forecast-row">
-      <div 
-        v-for="(day, index) in dailyForecast.slice(0, 7)" 
-        :key="index"
-        class="forecast-day forecast-card"
-      >
-        <div class="day-name">{{ formatDay(day.dt_txt) }}</div>
-        <div class="day-icon">
-          <div 
-            class="icon"
-            :class="getWeatherIconClass(day.weather?.[0]?.main)"
-            v-html="iconSvg(day.weather?.[0]?.main || 'Clear')"
-          ></div>
+  <template v-if="dailyForecast && dailyForecast.length > 0">
+    <div class="seven-day-forecast-card">
+      <h3>7 Day Forecast</h3>
+
+      <div class="forecast-row">
+        <div v-for="(day, index) in dailyForecast.slice(0, 7)" :key="index" class="forecast-day forecast-card">
+          <div class="day-name">{{ formatDay(day.dt_txt) }}</div>
+          <div class="day-icon">
+            <div class="icon" :class="getWeatherIconClass(day.weather?.[0]?.main)"
+              v-html="iconSvg(day.weather?.[0]?.main || 'Clear')"></div>
+          </div>
+          <div class="day-temps">
+            <span class="temp-high">{{ toDisplayTemp(day.main?.temp_max ?? 0) }}&deg;</span>
+            <span class="temp-low">{{ toDisplayTemp(day.main?.temp_min ?? 0) }}&deg;</span>
+          </div>
+          <div class="day-condition">{{ day.weather?.[0]?.description || 'Unknown' }}</div>
         </div>
-        <div class="day-temps">
-          <span class="temp-high">{{ toDisplayTemp(day.main?.temp_max ?? 0) }}&deg;</span>
-          <span class="temp-low">{{ toDisplayTemp(day.main?.temp_min ?? 0) }}&deg;</span>
-        </div>
-        <div class="day-condition">{{ day.weather?.[0]?.description || 'Unknown' }}</div>
       </div>
     </div>
-  </div>
+  </template>
+  <template v-else>
+    <div class="seven-day-forecast-card">
+      <h3>7 Day Forecast</h3>
+      <div class="empty-forecast">No forecast data yet.</div>
+    </div>
+  </template>
 </template>
 
 <script setup>
+import { shallowRef, watch } from 'vue'
+
+defineOptions({ inheritAttrs: false })
+
 const props = defineProps({
   dailyForecast: {
     type: Array,
@@ -45,6 +50,15 @@ const props = defineProps({
     required: true
   }
 })
+
+const dailyForecast = shallowRef(props.dailyForecast)
+watch(
+  () => props.dailyForecast,
+  (value) => {
+    dailyForecast.value = value
+  },
+  { immediate: true }
+)
 
 function getWeatherIconClass(condition) {
   const conditionMap = {
