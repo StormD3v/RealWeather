@@ -43,58 +43,6 @@ async function parseJsonSafe(response) {
   }
 }
 
-// Fetch helper with timeout, abort chaining and simple retry for network failures
-async function safeFetch(url, opts = {}) {
-  const maxRetries = 2 // retry up to 2 times on network errors or aborts
-  let attempt = 0
-
-  while (true) {
-    attempt += 1
-
-    // Create a dedicated controller for this attempt so we can timeout it
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 10000)
-
-    // If caller passed an external signal (e.g. store abort), propagate it
-    const externalSignal = opts.signal
-    const onExternalAbort = () => controller.abort()
-    if (externalSignal) {
-      if (externalSignal.aborted) {
-        clearTimeout(timeoutId)
-        controller.abort()
-      } else {
-        externalSignal.addEventListener('abort', onExternalAbort, { once: true })
-      }
-    }
-
-    try {
-      const response = await fetch(url, { ...opts, signal: controller.signal })
-      clearTimeout(timeoutId)
-      if (externalSignal) externalSignal.removeEventListener('abort', onExternalAbort)
-      return response
-    } catch (error) {
-      clearTimeout(timeoutId)
-      if (externalSignal) externalSignal.removeEventListener('abort', onExternalAbort)
-
-      const isRetryable = error?.name === 'AbortError' || error instanceof TypeError
-
-      if (!isRetryable) {
-        // Don't retry on non-network errors
-        throw error
-      }
-
-      if (attempt > maxRetries) {
-        // Exhausted retries
-        throw error
-      }
-
-      // Wait 1s before retrying
-      await new Promise((res) => setTimeout(res, 1000))
-      // loop to retry
-    }
-  }
-}
-
 function resolveErrorMessage(response, payload, params) {
   if (response.status === 404) {
     return params.q
@@ -105,7 +53,7 @@ function resolveErrorMessage(response, payload, params) {
 }
 
 async function geocodeCity(city) {
-  const res = await safeFetch(buildGeocodeUrl(city))
+  const res = await fetch(buildGeocodeUrl(city))
   const data = await res.json()
 
   if (!data.results || data.results.length === 0) {
@@ -124,7 +72,7 @@ async function geocodeCity(city) {
 }
 
 async function reverseGeocodeLocation(lat, lon) {
-  const response = await safeFetch(buildReverseGeocodeUrl(lat, lon), {
+  const response = await fetch(buildReverseGeocodeUrl(lat, lon), {
     headers: {
       'User-Agent': 'LumiCast/1.0'
     }
@@ -321,15 +269,6 @@ export async function fetchWeatherBundle(params, options = {}) {
 
   const cacheKey = buildWeatherCacheKey({ lat, lon })
   const cached = readWeatherCache(cacheKey, CACHE_TTL_MS)
-
-  if (import.meta.env.DEV) {
-    console.group('[LumiCast Debug] fetchWeatherBundle')
-    console.log('Request params:', params)
-    console.log('Resolved location:', locationName)
-    console.log('Cache fresh:', cached.fresh)
-    console.groupEnd()
-  }
-
   if (cached.fresh && cached.data) {
     return { ...cached.data, source: 'cache', servedAt: cached.timestamp ?? Date.now() }
   }
@@ -340,7 +279,7 @@ export async function fetchWeatherBundle(params, options = {}) {
 
   try {
     console.log('[weather-api] Making request to:', url)
-    const response = await safeFetch(url, { signal: options.signal })
+    const response = await fetch(url, { signal: options.signal })
     console.log('[weather-api] Response status:', response.status, response.statusText)
 
     const openMeteoData = await parseJsonSafe(response)
@@ -348,7 +287,6 @@ export async function fetchWeatherBundle(params, options = {}) {
 
     if (!response.ok) {
       console.error('[weather-api] API request failed:', response.status, openMeteoData)
-      // Do not retry on 400/404; caller will handle message. Throw immediately.
       throw new Error(resolveErrorMessage(response, openMeteoData, params))
     }
 
@@ -383,7 +321,6 @@ export async function fetchWeatherBundle(params, options = {}) {
       return { ...cached.data, source: 'stale-cache', servedAt: cached.timestamp ?? Date.now() }
     }
 
-    // All retries failed and no cache available — surface a clear message
-    throw new Error('Could not load weather. Check your connection and try again.')
+    throw error
   }
 }

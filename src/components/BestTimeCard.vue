@@ -1,7 +1,5 @@
 <script setup>
-import { computed, shallowRef, watch } from 'vue'
-
-defineOptions({ inheritAttrs: false })
+import { computed } from 'vue'
 
 const props = defineProps({
   hourlyForecast: {
@@ -13,15 +11,6 @@ const props = defineProps({
     default: null
   }
 })
-
-const hourlyForecast = shallowRef(props.hourlyForecast)
-watch(
-  () => props.hourlyForecast,
-  (value) => {
-    hourlyForecast.value = value
-  },
-  { immediate: true }
-)
 
 function formatTime(timestamp) {
   const date = new Date(timestamp * 1000)
@@ -53,9 +42,9 @@ function getConditionTag(score) {
 
 function getReason(hourData, score) {
   const reasons = []
-  const temp = hourData?.main?.temp ?? 0
+  const temp = hourData?.main?.temp
   const rainChance = Math.round((hourData?.pop ?? 0) * 100)
-  const windSpeed = hourData?.wind?.speed ?? 0
+  const windSpeed = hourData?.wind?.speed
 
   if (temp >= 22 && temp <= 28) reasons.push('Nice and cool')
   else if (temp > 32) reasons.push('Very hot')
@@ -72,37 +61,37 @@ function getReason(hourData, score) {
 }
 
 const bestTimeWindows = computed(() => {
-  const hourly = Array.isArray(hourlyForecast.value) ? hourlyForecast.value : []
-
+  const hourly = Array.isArray(props.hourlyForecast) ? props.hourlyForecast : []
+  
   // Score each hour from 6AM to 9PM
   const scoredHours = hourly.map((hour) => {
     const timestamp = hour?.dt
     const date = new Date(timestamp * 1000)
     const hourOfDay = date.getHours()
-
+    
     // Only consider hours from 6AM to 9PM
     if (hourOfDay < 6 || hourOfDay > 21) return null
-
+    
     const temp = hour?.main?.temp ?? 0
     const rainChance = Math.round(hour?.pop ?? 0)
     const windSpeed = hour?.wind?.speed ?? 0
-
+    
     let score = 0
-
+    
     // Temperature scoring
     if (temp >= 22 && temp <= 28) score += 2
     else if (temp >= 29 && temp <= 32) score += 1
     else if (temp > 32) score -= 1
-
+    
     // Rain chance scoring
     if (rainChance <= 20) score += 2
     else if (rainChance <= 50) score += 1
     else score -= 2
-
+    
     // Wind speed scoring
     if (windSpeed < 10) score += 1
     else if (windSpeed > 20) score -= 1
-
+    
     return {
       timestamp,
       hourData: hour,
@@ -110,12 +99,12 @@ const bestTimeWindows = computed(() => {
       zone: getZone(hourOfDay)
     }
   }).filter(Boolean)
-
+  
   // Group by zone and find best hour in each zone
   const zones = ['morning', 'afternoon', 'evening']
   const zoneWindows = zones.map((zone) => {
     const zoneHours = scoredHours.filter((h) => h.zone === zone)
-
+    
     if (zoneHours.length === 0) {
       return {
         time: 'Passed',
@@ -124,21 +113,11 @@ const bestTimeWindows = computed(() => {
         reason: 'This window has already passed today'
       }
     }
-
-    const bestHour = zoneHours.reduce((best, current) =>
+    
+    const bestHour = zoneHours.reduce((best, current) => 
       current.score > best.score ? current : best
     )
-
-    // If the best slot's timestamp is already in the past, mark this window as passed
-    if (bestHour && bestHour.timestamp * 1000 < Date.now()) {
-      return {
-        time: 'Passed',
-        label: zone === 'morning' ? 'Morning window' : zone === 'afternoon' ? 'Afternoon window' : 'Evening window',
-        condition: { label: 'DONE', color: 'grey' },
-        reason: 'This window has already passed today'
-      }
-    }
-
+    
     return {
       time: formatTime(bestHour.timestamp),
       label: zone === 'morning' ? 'Morning window' : zone === 'afternoon' ? 'Afternoon window' : 'Evening window',
@@ -146,7 +125,7 @@ const bestTimeWindows = computed(() => {
       reason: getReason(bestHour.hourData, bestHour.score)
     }
   })
-
+  
   return zoneWindows
 })
 </script>
@@ -155,7 +134,7 @@ const bestTimeWindows = computed(() => {
   <div class="best-time-card">
     <h3>Best Time to Go Out</h3>
     <p class="subtitle">Based on today's conditions</p>
-
+    
     <div class="time-windows">
       <div v-for="(window, index) in bestTimeWindows" :key="index" class="time-window">
         <div class="time-window-header">
@@ -282,15 +261,15 @@ const bestTimeWindows = computed(() => {
   .best-time-card h3 {
     font-size: 18px;
   }
-
+  
   .time-window {
     padding: 12px 14px;
   }
-
+  
   .time {
     font-size: 15px;
   }
-
+  
   .reason {
     font-size: 12px;
   }

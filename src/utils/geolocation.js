@@ -1,62 +1,14 @@
 export function getCurrentPosition(options = {}) {
-  const FALLBACK = { lat: 6.5244, lon: 3.3792, name: 'Lagos' }
+  if (typeof navigator === 'undefined' || !navigator.geolocation) {
+    return Promise.reject(new Error('Geolocation is not supported by this browser.'))
+  }
 
-  const geolocationAvailable = typeof navigator !== 'undefined' && navigator.geolocation
-
-  if (!geolocationAvailable) {
-    return Promise.resolve({
-      coords: { latitude: FALLBACK.lat, longitude: FALLBACK.lon },
-      fallback: true,
-      name: FALLBACK.name
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(resolve, reject, {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 60000,
+      ...options
     })
-  }
-
-  const GEO_OPTIONS = {
-    enableHighAccuracy: false,
-    timeout: 8000,
-    maximumAge: 300000
-  }
-
-  return new Promise((resolve) => {
-    let finished = false
-    let attempts = 0
-
-    const resolveWithFallback = () => {
-      if (finished) return
-      finished = true
-      resolve({
-        coords: { latitude: FALLBACK.lat, longitude: FALLBACK.lon },
-        fallback: true,
-        name: FALLBACK.name
-      })
-    }
-
-    const overallTimer = setTimeout(() => {
-      resolveWithFallback()
-    }, 10000)
-
-    const tryOnce = () => {
-      attempts += 1
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          if (finished) return
-          finished = true
-          clearTimeout(overallTimer)
-          resolve(position)
-        },
-        (error) => {
-          if (finished) return
-          if (attempts < 2) {
-            setTimeout(tryOnce, 2000)
-          } else {
-            clearTimeout(overallTimer)
-            resolveWithFallback()
-          }
-        },
-        GEO_OPTIONS
-      )
-    }
-
-    tryOnce()
   })
 }

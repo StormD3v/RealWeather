@@ -1,21 +1,38 @@
 <template>
   <div class="weather-impact-card">
     <h3>Weather Impact Score</h3>
-
+    
     <div class="impact-content">
       <!-- Top: Impact Score Circle -->
       <div class="score-ring">
         <svg class="ring-svg" viewBox="0 0 200 200">
-          <circle cx="100" cy="100" r="70" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8" />
-          <circle cx="100" cy="100" r="70" fill="none" :stroke="ringColor" stroke-width="8" stroke-linecap="round"
-            transform="rotate(-90 100 100)" :stroke-dasharray="circumference" :stroke-dashoffset="dashOffset"
-            class="ring-progress" />
+          <circle
+            cx="100"
+            cy="100"
+            r="70"
+            fill="none"
+            stroke="rgba(255,255,255,0.1)"
+            stroke-width="8"
+          />
+          <circle
+            cx="100"
+            cy="100"
+            r="70"
+            fill="none"
+            :stroke="ringColor"
+            stroke-width="8"
+            stroke-linecap="round"
+            transform="rotate(-90 100 100)"
+            :stroke-dasharray="circumference"
+            :stroke-dashoffset="dashOffset"
+            class="ring-progress"
+          />
           <text x="100" y="110" text-anchor="middle" class="ring-score">
             {{ impactScore?.score ?? 0 }}
           </text>
         </svg>
       </div>
-
+      
       <!-- Middle: Score Number and Description -->
       <div class="score-label">
         <div class="score-number">{{ impactScore?.score ?? 0 }}</div>
@@ -24,36 +41,43 @@
         <div class="impact-trend">
           <div class="trend-title">Impact Score Trend</div>
           <svg class="trend-sparkline" viewBox="0 0 120 36" preserveAspectRatio="none" aria-hidden="true">
-            <polyline class="trend-line" :points="trendLinePoints" />
-            <circle v-for="(score, idx) in trendScores" :key="`trend-dot-${idx}`" class="trend-dot" :cx="idx * 40"
-              :cy="35 - ((score / 100) * 30)" r="2.5" />
+            <polyline
+              class="trend-line"
+              :points="trendLinePoints"
+            />
+            <circle
+              v-for="(score, idx) in trendScores"
+              :key="`trend-dot-${idx}`"
+              class="trend-dot"
+              :cx="idx * 40"
+              :cy="35 - ((score / 100) * 30)"
+              r="2.5"
+            />
           </svg>
           <div class="trend-values">[ {{ trendText }} ]</div>
         </div>
       </div>
     </div>
-
+    
     <!-- Bottom: Impact Factor Grid -->
     <div class="impact-factors">
       <div class="factors-title">Impact Factors</div>
       <div class="factors-grid">
         <div class="factor-chip">
-          <span class="factor-label">🌧️ RAIN</span>
-          <span class="factor-value">{{ currentWeather?.rain?.['3h'] || currentWeather?.rain?.['1h'] || '0.0' }}
-            mm</span>
+          <span class="factor-label">Rain</span>
+          <span class="factor-value">{{ currentWeather?.rain?.['3h'] || currentWeather?.rain?.['1h'] || '0.0' }} mm</span>
         </div>
         <div class="factor-chip">
-          <span class="factor-label">💨 WIND</span>
+          <span class="factor-label">Wind</span>
           <span class="factor-value">{{ currentWeather?.wind?.speed || 0 }} km/h</span>
         </div>
         <div class="factor-chip">
-          <span class="factor-label">🌡️ TEMP</span>
+          <span class="factor-label">Temp</span>
           <span class="factor-value">{{ Math.round(currentWeather?.main?.temp || 0) }}&deg;{{ unitSymbol }}</span>
         </div>
         <div class="factor-chip">
-          <span class="factor-label">🌡️ PRESSURE</span>
-          <span class="factor-value">{{ currentWeather?.main?.pressure && currentWeather?.main?.pressure > 0 ?
-            currentWeather?.main?.pressure : 'N/A' }} hPa</span>
+          <span class="factor-label">Pressure</span>
+          <span class="factor-value">{{ currentWeather?.main?.pressure && currentWeather?.main?.pressure > 0 ? currentWeather?.main?.pressure : 'N/A' }} hPa</span>
         </div>
       </div>
     </div>
@@ -317,15 +341,15 @@ const trendLinePoints = computed(() =>
     flex-direction: column;
     gap: 16px;
   }
-
+  
   .score-display {
     justify-content: center;
   }
-
+  
   .indicators {
     align-items: center;
   }
-
+  
   .ring-svg {
     width: 120px;
     height: 120px;

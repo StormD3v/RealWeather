@@ -1,9 +1,14 @@
 <template>
   <div class="weather-risk-alerts-card">
     <h3>Weather Risk Alerts</h3>
-
+    
     <div class="alerts-content" v-if="hasAlerts">
-      <div v-for="alert in activeAlerts" :key="alert.id" class="alert-item" :class="alert.severity">
+      <div 
+        v-for="alert in activeAlerts" 
+        :key="alert.id"
+        class="alert-item"
+        :class="alert.severity"
+      >
         <div class="alert-icon">{{ alert.icon }}</div>
         <div class="alert-info">
           <div class="alert-title">{{ alert.title }}</div>
@@ -11,7 +16,7 @@
         </div>
       </div>
     </div>
-
+    
     <div class="no-alerts" v-else>
       <div class="no-alerts-icon">✓</div>
       <div class="no-alerts-text">No severe weather alerts</div>
@@ -38,22 +43,21 @@ const hasAlerts = computed(() => {
 })
 
 const activeAlerts = computed(() => {
-  const forecastData = Array.isArray(props.forecastData) ? props.forecastData : []
-  if (forecastData.length === 0 || !props.currentWeather) {
+  if (!props.forecastData || props.forecastData.length === 0 || !props.currentWeather) {
     return []
   }
 
   const alerts = []
-  const currentTemp = props.currentWeather?.main?.temp ?? 0
-  const currentWind = props.currentWeather?.wind?.speed ?? 0
-  const currentRainChance = props.currentWeather?.rain?.chance ?? 0
-  const currentCondition = props.currentWeather?.weather?.[0]?.main?.toLowerCase() ?? ''
+  const currentTemp = props.currentWeather?.main?.temp || 0
+  const currentWind = props.currentWeather?.wind?.speed || 0
+  const currentRainChance = props.currentWeather?.rain?.chance || 0
+  const currentCondition = props.currentWeather?.weather?.[0]?.main?.toLowerCase() || ''
 
   // Check for heavy rain
-  const upcomingRain = forecastData.slice(0, 24).some(hour =>
-    (hour?.rain?.chance ?? 0) > 70
+  const upcomingRain = props.forecastData.slice(0, 24).some(hour => 
+    (hour?.rain?.chance || 0) > 70
   )
-
+  
   if (upcomingRain) {
     alerts.push({
       id: 'heavy-rain',
@@ -76,10 +80,10 @@ const activeAlerts = computed(() => {
   }
 
   // Check for heatwave
-  const upcomingHighTemp = forecastData.slice(0, 48).some(hour =>
-    (hour?.main?.temp ?? 0) > 35
+  const upcomingHighTemp = props.forecastData.slice(0, 48).some(hour => 
+    (hour?.main?.temp || 0) > 35
   )
-
+  
   if (upcomingHighTemp && currentTemp > 30) {
     alerts.push({
       id: 'heatwave',
@@ -91,10 +95,10 @@ const activeAlerts = computed(() => {
   }
 
   // Check for high wind
-  const upcomingHighWind = forecastData.slice(0, 24).some(hour =>
-    (hour?.wind?.speed ?? 0) > 25
+  const upcomingHighWind = props.forecastData.slice(0, 24).some(hour => 
+    (hour?.wind?.speed || 0) > 25
   )
-
+  
   if (upcomingHighWind) {
     alerts.push({
       id: 'high-wind',
@@ -212,21 +216,21 @@ const activeAlerts = computed(() => {
     padding: 12px;
     gap: 10px;
   }
-
+  
   .alert-icon {
     width: 28px;
     height: 28px;
     font-size: 18px;
   }
-
+  
   .alert-title {
     font-size: 14px;
   }
-
+  
   .alert-description {
     font-size: 13px;
   }
-
+  
   .weather-risk-alerts-card h3 {
     font-size: 18px;
   }

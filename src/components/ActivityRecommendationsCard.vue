@@ -1,14 +1,18 @@
 <template>
   <div class="activity-recommendations">
     <h3>Activity Recommendations</h3>
-
+    
     <div class="recommendations-content">
       <div class="recommendation-message">
         <p>{{ mainRecommendation }}</p>
       </div>
-
+      
       <div class="activity-tags">
-        <div v-for="activity in activityList" :key="activity" class="activity-tag">
+        <div 
+          v-for="activity in activityList" 
+          :key="activity"
+          class="activity-tag"
+        >
           {{ activity }}
         </div>
       </div>
@@ -17,9 +21,7 @@
 </template>
 
 <script setup>
-import { computed, shallowRef, watch } from 'vue'
-
-defineOptions({ inheritAttrs: false })
+import { computed } from 'vue'
 
 const props = defineProps({
   recommendations: {
@@ -32,48 +34,39 @@ const props = defineProps({
   }
 })
 
-const currentWeather = shallowRef(props.currentWeather)
-watch(
-  () => props.currentWeather,
-  (value) => {
-    currentWeather.value = value
-  },
-  { immediate: true }
-)
-
 const mainRecommendation = computed(() => {
-  const temp = currentWeather.value?.main?.temp
-  const condition = currentWeather.value?.weather?.[0]?.main
-  const rainChance = currentWeather.value?.rain?.chance ?? 0
-
+  const temp = props.currentWeather?.main?.temp
+  const condition = props.currentWeather?.weather?.[0]?.main
+  const rainChance = props.currentWeather?.rain?.chance
+  
   if (!temp) return 'Weather data unavailable for activity recommendations.'
-
+  
   if (rainChance > 50) {
     return 'High chance of rain. Indoor activities recommended. Consider covered venues or reschedule outdoor events.'
   }
-
+  
   if (temp > 30) {
     return 'Very hot conditions. Plan indoor activities with cooling, or schedule outdoor activities for early morning/evening.'
   }
-
+  
   if (temp < 10) {
     return 'Cold weather expected. Dress warmly for outdoor activities or consider indoor alternatives.'
   }
-
+  
   if (condition === 'Clear' && temp >= 18 && temp <= 26) {
     return 'Perfect weather conditions! Ideal for outdoor activities and events.'
   }
-
+  
   return 'Moderate weather conditions. Most activities suitable with minor adjustments.'
 })
 
 const activityList = computed(() => {
-  const temp = currentWeather.value?.main?.temp
-  const rainChance = currentWeather.value?.rain?.chance ?? 0
-  const condition = currentWeather.value?.weather?.[0]?.main
-
+  const temp = props.currentWeather?.main?.temp
+  const rainChance = props.currentWeather?.rain?.chance
+  const condition = props.currentWeather?.weather?.[0]?.main
+  
   const activities = []
-
+  
   if (rainChance > 50) {
     activities.push('Indoor Sports', 'Museum Tours', 'Shopping Centers')
   } else if (temp > 30) {
@@ -85,7 +78,7 @@ const activityList = computed(() => {
   } else {
     activities.push('Light Exercise', 'Walking', 'Casual Outings')
   }
-
+  
   return activities.slice(0, 4) // Limit to 4 tags
 })
 </script>
@@ -150,11 +143,11 @@ const activityList = computed(() => {
   .recommendations-content {
     gap: 16px;
   }
-
+  
   .activity-tags {
     gap: 6px;
   }
-
+  
   .activity-tag {
     padding: 6px 12px;
     font-size: 11px;

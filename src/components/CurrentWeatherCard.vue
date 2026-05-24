@@ -67,7 +67,7 @@ const props = defineProps({
 
 const windDisplay = computed(() => {
   if (!props.currentWeather?.wind?.speed) return 'N/A'
-  return `${props.currentWeather.wind.speed} km/h`
+  return `${props.currentWeather.wind.speed} km/h` 
 })
 
 const visibilityKm = computed(() => {
@@ -110,71 +110,53 @@ function trendArrow(value) {
 <template>
   <div class="current-weather-card" :class="weatherGlowClass">
     <h3>Current Weather</h3>
+    
+    <div class="weather-content">
+      <div class="weather-main">
+        <div class="city-name">{{ currentWeather?.name ?? 'Unknown' }}</div>
 
-    <Transition enter-active-class="transition-opacity duration-300" enter-from-class="opacity-0">
-      <template #default>
-        <div v-if="props.loading" class="weather-content skeleton-state">
-          <div class="weather-main">
-            <div class="skeleton skeleton-title"></div>
-            <div class="skeleton skeleton-icon"></div>
-            <div class="skeleton skeleton-temp"></div>
-            <div class="skeleton skeleton-line"></div>
-            <div class="skeleton skeleton-line short"></div>
-          </div>
-
-          <div class="stats-grid">
-            <div class="stat-item skeleton-stat"></div>
-            <div class="stat-item skeleton-stat"></div>
-            <div class="stat-item skeleton-stat"></div>
-            <div class="stat-item skeleton-stat"></div>
-          </div>
+        <div class="weather-icon">
+          <div 
+            class="icon main-weather-icon"
+            :class="mainWeatherIconClass"
+            v-html="iconSvg(weatherIcon)"
+          ></div>
+        </div>
+        
+        <div class="temp-display">
+          {{ toDisplayTemp(currentWeather?.main?.temp ?? 0) }}&deg;{{ unitSymbol }}
+          <span class="trend-arrow">{{ trendArrow(trendIndicators.temperature) }}</span>
         </div>
 
-        <div v-else class="weather-content">
-          <div class="weather-main">
-            <div class="city-name">{{ currentWeather?.name ?? 'Unknown' }}</div>
-
-            <div class="weather-icon">
-              <div class="icon main-weather-icon" :class="mainWeatherIconClass" v-html="iconSvg(weatherIcon)"></div>
-            </div>
-
-            <div class="temp-display">
-              {{ toDisplayTemp(currentWeather?.main?.temp ?? 0) }}&deg;{{ unitSymbol }}
-              <span class="trend-arrow">{{ trendArrow(trendIndicators.temperature) }}</span>
-            </div>
-
-            <div class="condition-description">
-              {{ capitalize(currentWeather?.weather?.[0]?.description ?? 'clear sky') }}
-            </div>
-
-            <div class="feels-like">
-              Feels like {{ toDisplayTemp(currentWeather?.main?.feels_like ?? currentWeather?.main?.temp ?? 0) }}&deg;{{
-                unitSymbol }}
-            </div>
-          </div>
-
-          <!-- Stats Grid -->
-          <div class="stats-grid">
-            <div class="stat-item">
-              <span class="stat-label">💧 HUMIDITY</span>
-              <span class="stat-value">{{ humidity }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">💨 WIND SPEED</span>
-              <span class="stat-value">{{ windDisplay }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">🌡️ PRESSURE</span>
-              <span class="stat-value">{{ pressure }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">🌧️ RAIN CHANCE TODAY</span>
-              <span class="stat-value">{{ rainChance }}</span>
-            </div>
-          </div>
+        <div class="condition-description">
+          {{ capitalize(currentWeather?.weather?.[0]?.description ?? 'clear sky') }}
         </div>
-      </template>
-    </Transition>
+
+        <div class="feels-like">
+          Feels like {{ toDisplayTemp(currentWeather?.main?.feels_like ?? currentWeather?.main?.temp ?? 0) }}&deg;{{ unitSymbol }}
+        </div>
+      </div>
+      
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-label">Humidity</span>
+          <span class="stat-value">{{ humidity }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Wind Speed</span>
+          <span class="stat-value">{{ windDisplay }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Pressure</span>
+          <span class="stat-value">{{ pressure }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Rain Chance Today</span>
+          <span class="stat-value">{{ rainChance }}</span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -259,71 +241,6 @@ function trendArrow(value) {
   color: rgba(255, 255, 255, 0.6);
 }
 
-.skeleton-state {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-}
-
-.skeleton {
-  width: 100%;
-  min-height: 16px;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.12) 50%, rgba(255, 255, 255, 0.06) 100%);
-  background-size: 200% 100%;
-  animation: shimmer 1.4s ease infinite;
-  border-radius: 8px;
-}
-
-.skeleton-title {
-  width: 120px;
-  height: 20px;
-}
-
-.skeleton-icon {
-  width: 88px;
-  height: 88px;
-  border-radius: 50%;
-}
-
-.skeleton-temp {
-  width: 80px;
-  height: 36px;
-}
-
-.skeleton-line {
-  width: 220px;
-  height: 16px;
-}
-
-.skeleton-line.short {
-  width: 140px;
-}
-
-.skeleton-stat {
-  height: 72px;
-  border-radius: 16px;
-  min-width: 100%;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  width: 100%;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-
-  100% {
-    background-position: -200% 0;
-  }
-}
-
 .city-name {
   font-size: clamp(16px, 4vw, 20px);
   line-height: 1.2;
@@ -393,15 +310,15 @@ function trendArrow(value) {
     width: min(160px, 54vw);
     height: 126px;
   }
-
+  
   .temp-display {
     font-size: clamp(28px, 8vw, 44px);
   }
-
+  
   .city-name {
     font-size: clamp(16px, 4vw, 20px);
   }
-
+  
   .stats-grid {
     gap: 8px;
   }
