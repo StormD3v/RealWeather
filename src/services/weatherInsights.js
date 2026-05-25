@@ -6,6 +6,11 @@ function insight(message, level = 'normal') {
   return { message, level }
 }
 
+function toNumber(value, fallback = 0) {
+  const n = Number(value)
+  return Number.isFinite(n) ? n : fallback
+}
+
 export function generateWeatherInsights(normalizedWeather) {
   const insights = []
 
@@ -22,6 +27,20 @@ export function generateWeatherInsights(normalizedWeather) {
   const currentRain = Number(current.rain?.['1h'] ?? 0)
   const precipitation = Number(current.rain?.chance ?? 0)
   const condition = String(current.weather?.[0]?.main || '')
+
+  // New: check if it's rainy now or there is a high chance — use to gate "best time" insights
+  const rainChance = toNumber(current?.rain?.chance, 0)
+  const conditionLower = String(current.weather?.[0]?.main || '').toLowerCase()
+  const isRainy =
+    rainChance >= 60 ||
+    conditionLower.includes('rain') ||
+    conditionLower.includes('drizzle') ||
+    conditionLower.includes('thunder')
+
+  if (isRainy) {
+    insights.push(insight('Best time: Wait for rain to stop before going outside. Check back later.', 'warning'))
+    insights.push(insight('Rain alert: High chance of rain today. Keep an umbrella handy.', 'warning'))
+  }
 
   // Rain-based insights
   if (precipitation > 2) {

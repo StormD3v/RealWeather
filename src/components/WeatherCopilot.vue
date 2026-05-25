@@ -34,7 +34,59 @@ function generateCopilotMessage(weatherData = {}) {
   const current = weatherData.currentWeather || {}
   const hourly = Array.isArray(weatherData.hourlyForecast) ? weatherData.hourlyForecast : []
 
+  const rainChance = toNumber(weatherData.currentWeather?.rain?.chance, 0)
   const condition = String(current?.weather?.[0]?.main || '').toLowerCase()
+  const temp = toNumber(current?.main?.temp, 0)
+  const humidity = toNumber(current?.main?.humidity, 0)
+
+  const peakRainHour = hourly.reduce((peak, slot) => {
+    const chance = toNumber(slot?.pop, 0) * 100
+    return chance > peak.chance
+      ? { chance, time: slot?.dt_txt || slot?.dt }
+      : peak
+  }, { chance: 0, time: null })
+
+  function formatPeakTime(dt) {
+    if (!dt) return null
+    const date = typeof dt === 'string'
+      ? new Date(dt.replace(' ', 'T'))
+      : new Date(dt * 1000)
+    return date.toLocaleTimeString([], {
+      hour: 'numeric', hour12: true
+    })
+  }
+
+  // Thunder / storm - immediate severe message
+  if (condition.includes('thunder') || condition.includes('storm')) {
+    const peakTime = formatPeakTime(peakRainHour.time)
+    return `There's a thunderstorm right now. Stay indoors and avoid travel. ${peakTime ? `Conditions look most intense around ${peakTime}. ` : ''}Wait for the storm to pass before going outside.`
+  }
+
+  // CASE 1: It is currently raining/drizzling
+  if (condition.includes('rain') || condition.includes('drizzle')) {
+    const peakTime = formatPeakTime(peakRainHour.time)
+    const intensity = rainChance >= 85 ? 'heavy rain' : 'rain'
+    return `It's raining now with a ${rainChance}% chance of ${intensity} continuing today.` +
+      (peakTime && peakRainHour.chance > rainChance ? ` Heaviest rain expected around ${peakTime}.` : '') +
+      ` Stay indoors if you can, or carry an umbrella.`
+  }
+
+  // CASE 2: Not raining now but high chance later
+  if (rainChance >= 70) {
+    const peakTime = formatPeakTime(peakRainHour.time)
+    return `It is not raining right now but there is a ${rainChance}% chance of rain today.` +
+      (peakTime ? ` Expect rain around ${peakTime}.` : '') +
+      ` Carry an umbrella if you are going out later.`
+  }
+
+  if (temp >= 35 || (temp >= 32 && humidity >= 75)) {
+    return `It's extremely hot and humid right now. Avoid being outside for long periods. Drink water regularly and stay in cool places.`
+  }
+
+  if (condition.includes('fog') || condition.includes('mist')) {
+    return `Visibility is low due to fog right now. Drive carefully and use headlights if travelling. Conditions should improve as the day warms up.`
+  }
+
   const uvIndex = toNumber(current?.uvi ?? current?.uvIndex, 0)
 
   const morningSlots = hourly.filter((slot) => {
@@ -66,7 +118,6 @@ function generateCopilotMessage(weatherData = {}) {
     (max, slot) => Math.max(max, toNumber(slot?.wind?.speed, toNumber(current?.wind?.speed, 0))),
     toNumber(current?.wind?.speed, 0)
   )
-  const humidity = toNumber(current?.main?.humidity, 0)
 
   const morningSummary =
     morningTemp >= 18 && morningTemp <= 25
@@ -127,10 +178,13 @@ const intelligence = computed(() => {
 </script>
 
 <template>
-  <section class="weather-copilot-card relative overflow-hidden rounded-2xl bg-white/10 backdrop-blur p-6 shadow-lg border border-white/15">
+  <section
+    class="weather-copilot-card relative overflow-hidden rounded-2xl bg-white/10 backdrop-blur p-6 shadow-lg border border-white/15">
     <span class="ai-badge">✦ AI</span>
-    <div class="pointer-events-none absolute -top-16 -right-16 h-44 w-44 rounded-full bg-gradient-to-br from-white/25 to-transparent blur-2xl"></div>
-    
+    <div
+      class="pointer-events-none absolute -top-16 -right-16 h-44 w-44 rounded-full bg-gradient-to-br from-white/25 to-transparent blur-2xl">
+    </div>
+
     <div class="relative z-10 flex items-start justify-between gap-3">
       <div class="min-w-0">
         <h3 class="m-0 text-[22px] font-semibold text-white">Lumi AI</h3>
@@ -232,6 +286,7 @@ const intelligence = computed(() => {
   from {
     background-position: 200% 0;
   }
+
   to {
     background-position: -200% 0;
   }
