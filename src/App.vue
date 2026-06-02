@@ -27,6 +27,8 @@
             </button>
           </div>
           <WeatherSourceBadge :source="weatherSource" :timestamp="weatherSourceTime" />
+          <UserProfileSelector @profile-changed="handleProfileChanged" />
+          <SavedLocations @load-location="runCitySearch" />
           <div class="recent-searches" v-if="searchHistory.length">
             <button v-for="city in searchHistory" :key="'recent-' + city" type="button" class="recent-chip"
               @click="searchFromHistory(city)">
@@ -83,6 +85,12 @@
       </section>
 
       <div class="dashboard-flow">
+        <div class="morning-briefing-section dashboard-section">
+          <MorningBriefingCard :current-weather="weatherStore.currentWeather"
+            :hourly-forecast="hourlyForecast" :impact-score="weatherStore.impactScore"
+            :user-profile="userProfile" />
+        </div>
+
         <section class="current-impact-section dashboard-section two-column-section">
           <div class="dashboard-card current-weather">
             <CurrentWeatherCard :loading="weatherStore.loading" :error="weatherStore.error"
@@ -103,7 +111,8 @@
 
         <section class="ai-insights-section dashboard-section">
           <div class="dashboard-card panel-weather-copilot">
-            <WeatherCopilot :loading="weatherStore.loading" :weather-data="sharedWeatherData" />
+            <WeatherCopilot :loading="weatherStore.loading" :weather-data="sharedWeatherData"
+              :user-profile="userProfile" />
           </div>
         </section>
 
@@ -169,6 +178,8 @@ import { useWeatherStore } from '@/stores/weather'
 import WeatherBackground from '@/components/WeatherBackground.vue'
 import CurrentWeatherCard from '@/components/CurrentWeatherCard.vue'
 import WeatherSourceBadge from '@/components/WeatherSourceBadge.vue'
+import UserProfileSelector from '@/components/UserProfileSelector.vue'
+import SavedLocations from '@/components/SavedLocations.vue'
 import { getCurrentPosition } from '@/utils/geolocation'
 
 // New dashboard components
@@ -180,6 +191,7 @@ import HourlyDecisionTimeline from '@/components/HourlyDecisionTimeline.tsx'
 import SevenDayForecastCard from '@/components/SevenDayForecastCard.vue'
 import WeatherRiskAlertsCard from '@/components/WeatherRiskAlertsCard.vue'
 import BestTimeCard from '@/components/BestTimeCard.vue'
+import MorningBriefingCard from '@/components/MorningBriefingCard.vue'
 
 const WeatherTrendCharts = defineAsyncComponent({
   loader: () => import('@/components/WeatherTrendCharts.vue'),
@@ -197,6 +209,7 @@ const lastSearchedCity = ref('')
 const hasSearchedCity = ref(false)
 const geolocationDenied = ref(false)
 const detectingLocation = ref(false)
+const userProfile = ref('general')
 
 const SEARCH_HISTORY_KEY = 'weather-search-history'
 
@@ -343,6 +356,10 @@ function clearDebouncedSearch() {
   if (!searchDebounceTimer) return
   clearTimeout(searchDebounceTimer)
   searchDebounceTimer = null
+}
+
+function handleProfileChanged(profile) {
+  userProfile.value = profile || 'general'
 }
 
 async function runCitySearch(city) {

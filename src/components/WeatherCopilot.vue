@@ -10,8 +10,50 @@ const props = defineProps({
   weatherData: {
     type: Object,
     default: () => ({})
+  },
+  userProfile: {
+    type: String,
+    default: 'general'
   }
 })
+
+const profileTips = {
+  student: {
+    rain: 'Leave before your afternoon lectures to avoid getting caught in the rain.',
+    hot: 'Stay hydrated between classes.',
+    general: 'A good day to focus on studies.'
+  },
+  office_worker: {
+    rain: 'Carry an umbrella for your commute.',
+    hot: 'The AC in the office will be a relief today.',
+    general: 'Conditions look fine for your workday.'
+  },
+  business_owner: {
+    rain: 'Heavy rain may reduce customer footfall today. Stock up and prepare for a quieter day.',
+    hot: 'Hot weather brings more foot traffic. Make sure your space is cool and well stocked.',
+    general: 'Conditions look good for business today.'
+  },
+  delivery_rider: {
+    rain: 'Schedule most deliveries before the rain arrives.',
+    hot: 'Drink water regularly between deliveries.',
+    general: 'Good conditions for deliveries today.'
+  },
+  driver: {
+    rain: 'Roads may be slippery. Drive carefully.',
+    hot: 'Check your tyre pressure — heat affects it.',
+    general: 'Good driving conditions today.'
+  },
+  athlete: {
+    rain: 'Move your outdoor session indoors or reschedule.',
+    hot: 'Train early morning or after sunset to avoid the heat.',
+    general: 'Good conditions for outdoor training.'
+  },
+  traveler: {
+    rain: 'Pack a rain jacket — weather may affect travel.',
+    hot: 'Dress light and carry water for your journey.',
+    general: 'Conditions look fine for travel today.'
+  }
+}
 
 function toNumber(value, fallback = 0) {
   const n = Number(value)
@@ -30,7 +72,22 @@ function toHour24(slot) {
   return -1
 }
 
-function generateCopilotMessage(weatherData = {}) {
+function getProfileConditionType({ condition, temp, humidity, rainChance }) {
+  if (condition.includes('rain') || condition.includes('drizzle') || condition.includes('thunder') || condition.includes('storm') || rainChance >= 70) {
+    return 'rain'
+  }
+  if (temp >= 35 || (temp >= 32 && humidity >= 75)) {
+    return 'hot'
+  }
+  return 'general'
+}
+
+function appendProfileTip(message, userProfile, conditionType) {
+  const tip = profileTips[userProfile]?.[conditionType]
+  return tip ? `${message} ${tip}` : message
+}
+
+function generateCopilotMessage(weatherData = {}, userProfile = 'general') {
   const current = weatherData.currentWeather || {}
   const hourly = Array.isArray(weatherData.hourlyForecast) ? weatherData.hourlyForecast : []
 
@@ -38,6 +95,7 @@ function generateCopilotMessage(weatherData = {}) {
   const condition = String(current?.weather?.[0]?.main || '').toLowerCase()
   const temp = toNumber(current?.main?.temp, 0)
   const humidity = toNumber(current?.main?.humidity, 0)
+  const profileConditionType = getProfileConditionType({ condition, temp, humidity, rainChance })
 
   const peakRainHour = hourly.reduce((peak, slot) => {
     const chance = toNumber(slot?.pop, 0) * 100
@@ -59,32 +117,44 @@ function generateCopilotMessage(weatherData = {}) {
   // Thunder / storm - immediate severe message
   if (condition.includes('thunder') || condition.includes('storm')) {
     const peakTime = formatPeakTime(peakRainHour.time)
-    return `There's a thunderstorm right now. Stay indoors and avoid travel. ${peakTime ? `Conditions look most intense around ${peakTime}. ` : ''}Wait for the storm to pass before going outside.`
+    return appendProfileTip(
+      `There's a thunderstorm right now. Stay indoors and avoid travel. ${peakTime ? `Conditions look most intense around ${peakTime}. ` : ''}Wait for the storm to pass before going outside.`,
+      userProfile,
+      profileConditionType
+    )
   }
 
   // CASE 1: It is currently raining/drizzling
   if (condition.includes('rain') || condition.includes('drizzle')) {
     const peakTime = formatPeakTime(peakRainHour.time)
     const intensity = rainChance >= 85 ? 'heavy rain' : 'rain'
-    return `It's raining now with a ${rainChance}% chance of ${intensity} continuing today.` +
+    return appendProfileTip(`It's raining now with a ${rainChance}% chance of ${intensity} continuing today.` +
       (peakTime && peakRainHour.chance > rainChance ? ` Heaviest rain expected around ${peakTime}.` : '') +
-      ` Stay indoors if you can, or carry an umbrella.`
+      ` Stay indoors if you can, or carry an umbrella.`, userProfile, profileConditionType)
   }
 
   // CASE 2: Not raining now but high chance later
   if (rainChance >= 70) {
     const peakTime = formatPeakTime(peakRainHour.time)
-    return `It is not raining right now but there is a ${rainChance}% chance of rain today.` +
+    return appendProfileTip(`It is not raining right now but there is a ${rainChance}% chance of rain today.` +
       (peakTime ? ` Expect rain around ${peakTime}.` : '') +
-      ` Carry an umbrella if you are going out later.`
+      ` Carry an umbrella if you are going out later.`, userProfile, profileConditionType)
   }
 
   if (temp >= 35 || (temp >= 32 && humidity >= 75)) {
-    return `It's extremely hot and humid right now. Avoid being outside for long periods. Drink water regularly and stay in cool places.`
+    return appendProfileTip(
+      `It's extremely hot and humid right now. Avoid being outside for long periods. Drink water regularly and stay in cool places.`,
+      userProfile,
+      profileConditionType
+    )
   }
 
   if (condition.includes('fog') || condition.includes('mist')) {
-    return `Visibility is low due to fog right now. Drive carefully and use headlights if travelling. Conditions should improve as the day warms up.`
+    return appendProfileTip(
+      `Visibility is low due to fog right now. Drive carefully and use headlights if travelling. Conditions should improve as the day warms up.`,
+      userProfile,
+      profileConditionType
+    )
   }
 
   const uvIndex = toNumber(current?.uvi ?? current?.uvIndex, 0)
@@ -154,10 +224,15 @@ function generateCopilotMessage(weatherData = {}) {
 
   const sentenceOne = `${morningSummary.replace(/\.$/, '')}. ${middayInsight}`
   const sentenceTwo = lateDayForecast
-  return `${sentenceOne} ${sentenceTwo}`
+  return appendProfileTip(`${sentenceOne} ${sentenceTwo}`, userProfile, profileConditionType)
 }
 
-const copilotMessage = computed(() => generateCopilotMessage(props.weatherData || {}))
+const copilotMessage = computed(() => generateCopilotMessage(props.weatherData || {}, props.userProfile))
+
+function generateWeatherInsights(input, userProfile = 'general') {
+  void userProfile
+  return generateForecastInsights(input)
+}
 
 const intelligence = computed(() => {
   const data = props.weatherData || {}
@@ -173,7 +248,7 @@ const intelligence = computed(() => {
     hourlyForecast: hourly
   }
 
-  return generateForecastInsights(input)
+  return generateWeatherInsights(input, props.userProfile)
 })
 </script>
 
