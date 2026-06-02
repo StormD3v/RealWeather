@@ -86,10 +86,15 @@
 
       <div class="dashboard-flow">
         <div class="morning-briefing-section dashboard-section">
-          <MorningBriefingCard :current-weather="weatherStore.currentWeather"
-            :hourly-forecast="hourlyForecast" :impact-score="weatherStore.impactScore"
-            :user-profile="userProfile" />
+          <MorningBriefingCard :current-weather="weatherStore.currentWeather" :hourly-forecast="hourlyForecast"
+            :impact-score="weatherStore.impactScore" :user-profile="userProfile" />
         </div>
+
+        <section class="calendar-events-section dashboard-section">
+          <div class="dashboard-card">
+            <CalendarEventsCard :hourly-forecast="hourlyForecast" :current-weather="weatherStore.currentWeather" />
+          </div>
+        </section>
 
         <section class="current-impact-section dashboard-section two-column-section">
           <div class="dashboard-card current-weather">
@@ -168,6 +173,7 @@
       </div>
     </div>
 
+    <NotificationPrompt />
   </div>
 </template>
 
@@ -181,6 +187,8 @@ import WeatherSourceBadge from '@/components/WeatherSourceBadge.vue'
 import UserProfileSelector from '@/components/UserProfileSelector.vue'
 import SavedLocations from '@/components/SavedLocations.vue'
 import { getCurrentPosition } from '@/utils/geolocation'
+import NotificationPrompt from '@/components/NotificationPrompt.vue'
+import { scheduleWeatherAlerts } from '@/composables/useWeatherNotifications'
 
 // New dashboard components
 import WeatherImpactCard from '@/components/WeatherImpactCard.vue'
@@ -192,6 +200,7 @@ import SevenDayForecastCard from '@/components/SevenDayForecastCard.vue'
 import WeatherRiskAlertsCard from '@/components/WeatherRiskAlertsCard.vue'
 import BestTimeCard from '@/components/BestTimeCard.vue'
 import MorningBriefingCard from '@/components/MorningBriefingCard.vue'
+import CalendarEventsCard from '@/components/CalendarEventsCard.vue'
 
 const WeatherTrendCharts = defineAsyncComponent({
   loader: () => import('@/components/WeatherTrendCharts.vue'),
@@ -460,6 +469,16 @@ watch(
       console.groupEnd()
     }
   }
+)
+
+watch(
+  hourlyForecast,
+  (forecast) => {
+    if (weatherStore.currentWeather && !weatherStore.loading && Array.isArray(forecast) && forecast.length) {
+      scheduleWeatherAlerts(forecast, userProfile.value)
+    }
+  },
+  { immediate: true }
 )
 
 function toDate(value) {
