@@ -235,7 +235,7 @@ watch(editingSlot, async (slotKey) => {
 .saved-location-label { display: inline-flex; align-items: center; gap: var(--lc-sp-2); min-width: 0; }
 
 .saved-location-slot-icon { display: flex; align-items: center; flex-shrink: 0; }
-.saved-location-slot-icon svg { width: 14px; height: 14px; }
+.saved-location-slot-icon :deep(svg) { width: 14px; height: 14px; }
 
 .saved-location-name,
 .saved-location-empty-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

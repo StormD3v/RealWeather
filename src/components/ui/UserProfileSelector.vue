@@ -291,7 +291,7 @@ onMounted(() => {
   min-width: 0;
 }
 
-.profile-empty-icon { font-size: 1.5rem; line-height: 1; flex-shrink: 0; width: 28px; height: 28px; display: inline-flex; }
+.profile-empty-icon { flex-shrink: 0; width: 28px; height: 28px; display: inline-flex; }
 .profile-empty-icon :deep(svg) { width: 28px; height: 28px; }
 
 .profile-empty-heading {

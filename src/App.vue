@@ -335,10 +335,8 @@ watch(
   display: grid;
   place-items: center;
   cursor: pointer;
-  font-size: 1rem;
   transition: background var(--lc-transition-hover), border-color var(--lc-transition-hover),
               transform var(--lc-transition-hover);
-  line-height: 1;
 }
 
 .theme-toggle-btn:hover {

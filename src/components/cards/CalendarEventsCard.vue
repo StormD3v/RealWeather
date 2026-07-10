@@ -373,6 +373,11 @@ onMounted(() => {
 .status-icon { display: inline-flex; width: 14px; height: 14px; flex-shrink: 0; }
 .status-icon :deep(svg) { width: 14px; height: 14px; }
 
+/* Status icon colors — drive currentColor on the SVG */
+.event-row.clear    .status-icon { color: var(--lc-success); }
+.event-row.rain     .status-icon { color: #fb923c; }
+.event-row.at-risk  .status-icon { color: var(--lc-warning); }
+
 .suggestion-text { margin: 0; color: var(--lc-warning); font-size: var(--lc-text-caption); font-weight: var(--lc-weight-semibold); }
 
 @media (max-width: 640px) {

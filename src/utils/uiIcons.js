@@ -16,34 +16,34 @@
 const _cache = new Map()
 
 // ---------------------------------------------------------------------------
-// Status icons
+// Status icons — use currentColor throughout so callers can tint via CSS color
 // ---------------------------------------------------------------------------
 
 const ALERT_SVG = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-  <circle cx="12" cy="12" r="10" stroke="var(--lc-error)" stroke-width="2"/>
-  <line x1="12" y1="8" x2="12" y2="13" stroke="var(--lc-error)" stroke-width="2" stroke-linecap="round"/>
-  <circle cx="12" cy="16.5" r="1" fill="var(--lc-error)"/>
+  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+  <line x1="12" y1="8" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="12" cy="16.5" r="1" fill="currentColor"/>
 </svg>`
 
 const WARNING_SVG = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="var(--lc-warning)" stroke-width="2" stroke-linejoin="round"/>
-  <line x1="12" y1="9" x2="12" y2="13" stroke="var(--lc-warning)" stroke-width="2" stroke-linecap="round"/>
-  <circle cx="12" cy="16.5" r="1" fill="var(--lc-warning)"/>
+  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+  <line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="12" cy="16.5" r="1" fill="currentColor"/>
 </svg>`
 
 const INFO_SVG = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-  <circle cx="12" cy="12" r="10" stroke="var(--lc-accent)" stroke-width="2"/>
-  <line x1="12" y1="16" x2="12" y2="12" stroke="var(--lc-accent)" stroke-width="2" stroke-linecap="round"/>
-  <circle cx="12" cy="8.5" r="1" fill="var(--lc-accent)"/>
+  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+  <line x1="12" y1="16" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="12" cy="8.5" r="1" fill="currentColor"/>
 </svg>`
 
 const CHECK_SVG = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-  <polyline points="20 6 9 17 4 12" stroke="var(--lc-success)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>`
 
 const CHECK_CIRCLE_SVG = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-  <circle cx="12" cy="12" r="10" stroke="var(--lc-success)" stroke-width="2"/>
-  <polyline points="8 12 11 15 16 9" stroke="var(--lc-success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+  <polyline points="8 12 11 15 16 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>`
 
 const CLOSE_SVG = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -168,7 +168,7 @@ const UV_SVG = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
   <line x1="20" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
   <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
   <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-  <path d="M9 9l1.5 4.5L12 10l1.5 3.5L15 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M9 9l1.5 4.5L12 10l1.5 3.5L15 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>`
 
 const AIR_QUALITY_SVG = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -178,6 +178,7 @@ const AIR_QUALITY_SVG = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"
   <circle cx="8" cy="16" r="1.5" fill="currentColor"/>
 </svg>`
 
+// precipitation is an alias for rain — same visual, different semantic key
 const PRECIPITATION_SVG = RAIN_METRIC_SVG
 
 // ---------------------------------------------------------------------------
@@ -302,11 +303,14 @@ const GRADUATION_CAP_SVG = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="tr
 const BRIEFCASE_SVG = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
   <rect x="2" y="7" width="20" height="14" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
   <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-  <line x1="12" y1="12" x2="12" y2="12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="12" cy="14" r="1" fill="currentColor"/>
 </svg>`
 
 // ---------------------------------------------------------------------------
 // Decorative icons
+// Note: SPARKLES_SVG uses stroke-width="1.5" on the two smaller star paths
+// intentionally — the size variation conveys visual hierarchy (big star vs.
+// small sparkles). All other icons use stroke-width="2".
 // ---------------------------------------------------------------------------
 
 const SPARKLES_SVG = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">

@@ -93,7 +93,9 @@ const mappedAlerts = computed(() =>
 .alert-item:hover  { transform: translateY(-2px); }
 
 .alert-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.alert-icon :deep(svg) { width: 22px; height: 22px; }
+.alert-icon :deep(svg) { width: 24px; height: 24px; }
+.alert-item.high   .alert-icon { color: var(--lc-warning); }
+.alert-item.severe .alert-icon { color: var(--lc-error); }
 .alert-info { flex: 1; }
 .alert-title { font-size: var(--lc-text-body-sm); font-weight: var(--lc-weight-semibold); color: var(--lc-text-primary); margin-bottom: var(--lc-sp-1); }
 .alert-description { font-size: var(--lc-text-caption); color: var(--lc-text-secondary); line-height: var(--lc-leading-normal); }
@@ -105,6 +107,7 @@ const mappedAlerts = computed(() =>
   background: var(--lc-success-subtle);
   border: 1px solid rgba(34,197,94,0.2);
   border-radius: var(--lc-radius-full);
+  color: var(--lc-success);
   margin-bottom: var(--lc-sp-3);
 }
 .no-alerts-icon :deep(svg) { width: 24px; height: 24px; }
