@@ -25,8 +25,8 @@
               :aria-label="`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`"
               @click="toggleTheme"
             >
-              <span v-if="resolvedTheme === 'dark'" aria-hidden="true">☀️</span>
-              <span v-else aria-hidden="true">🌙</span>
+              <span v-if="resolvedTheme === 'dark'" class="theme-icon" aria-hidden="true" v-html="uiIcon('sun')"></span>
+              <span v-else class="theme-icon" aria-hidden="true" v-html="uiIcon('moon')"></span>
             </button>
           </div>
         </header>
@@ -115,6 +115,7 @@ import { useInsightEngine }       from '@/composables/useInsightEngine'
 import { useBehavioralSignals }   from '@/composables/useBehavioralSignals'
 import { useUserContext }         from '@/composables/useUserContext'
 import { useTheme }               from '@/composables/useTheme'
+import { uiIcon }                from '@/utils/uiIcons'
 
 import SearchHistory       from '@/components/layout/SearchHistory.vue'
 import SearchFeedback      from '@/components/layout/SearchFeedback.vue'
@@ -344,6 +345,9 @@ watch(
   background: var(--lc-surface-hover);
   transform: scale(1.05);
 }
+
+.theme-icon { display: flex; align-items: center; justify-content: center; }
+.theme-icon svg { width: 18px; height: 18px; }
 
 /* ── Controls ──────────────────────────────────────────────────────────── */
 .controls {

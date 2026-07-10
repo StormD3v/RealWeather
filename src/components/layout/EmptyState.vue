@@ -40,14 +40,15 @@
         <button class="search-btn" @click="$emit('search')" aria-label="Search weather">Search</button>
       </div>
       <p v-if="geolocationDenied" class="meta-line">
-        📍 Location access denied. Search by city to continue.
+        <span class="inline-icon" aria-hidden="true" v-html="uiIcon('location')"></span>
+        Location access denied. Search by city to continue.
       </p>
     </div>
   </section>
 
   <!-- Error with no existing data -->
   <section v-else-if="error && !hasWeather" class="empty-card empty-error" role="alert">
-    <div class="error-icon" aria-hidden="true">⚠️</div>
+    <div class="error-icon" aria-hidden="true" v-html="uiIcon('alert')"></div>
     <div>
       <h2 class="empty-error-title">Unable to load weather</h2>
       <p class="empty-error-msg">{{ error }}</p>
@@ -57,6 +58,8 @@
 </template>
 
 <script setup>
+import { uiIcon } from '@/utils/uiIcons'
+
 defineProps({
   loading:           { type: Boolean, default: false },
   hasWeather:        { type: Boolean, default: false },
@@ -76,7 +79,11 @@ defineEmits(['search', 'update:cityInput'])
 }
 
 .empty-error { flex-direction: row; align-items: flex-start; gap: var(--lc-sp-4); }
-.error-icon  { font-size: 1.5rem; flex-shrink: 0; margin-top: 2px; }
+.error-icon  { flex-shrink: 0; margin-top: 2px; width: 24px; height: 24px; color: var(--lc-error); }
+.error-icon svg { width: 24px; height: 24px; }
+
+.inline-icon { display: inline-flex; vertical-align: middle; margin-right: 4px; }
+.inline-icon svg { width: 14px; height: 14px; }
 
 .empty-error-title {
   margin: 0 0 var(--lc-sp-2);

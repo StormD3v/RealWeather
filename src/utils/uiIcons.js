@@ -266,51 +266,110 @@ const UNKNOWN_SVG = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
 </svg>`
 
 // ---------------------------------------------------------------------------
+// Theme / branding icons
+// ---------------------------------------------------------------------------
+
+const SUN_SVG = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/>
+  <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+</svg>`
+
+const MOON_SVG = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`
+
+// ---------------------------------------------------------------------------
+// Saved-location slot icons
+// ---------------------------------------------------------------------------
+
+const HOME_SVG = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+  <polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+</svg>`
+
+const GRADUATION_CAP_SVG = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <polygon points="12 2 22 8.5 12 15 2 8.5 12 2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+  <polyline points="6 11.5 6 17.5 12 21 18 17.5 18 11.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`
+
+const BRIEFCASE_SVG = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <rect x="2" y="7" width="20" height="14" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+  <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+  <line x1="12" y1="12" x2="12" y2="12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+</svg>`
+
+// ---------------------------------------------------------------------------
+// Decorative icons
+// ---------------------------------------------------------------------------
+
+const SPARKLES_SVG = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M19 3l.75 2.25L22 6l-2.25.75L19 9l-.75-2.25L16 6l2.25-.75L19 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M5 15l.5 1.5L7 17l-1.5.5L5 19l-.5-1.5L3 17l1.5-.5L5 15z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+</svg>`
+
+// ---------------------------------------------------------------------------
 // Icon map
 // ---------------------------------------------------------------------------
 
 const ICON_MAP = {
-    // status
-    alert: ALERT_SVG,
-    warning: WARNING_SVG,
-    info: INFO_SVG,
-    check: CHECK_SVG,
-    'check-circle': CHECK_CIRCLE_SVG,
-    close: CLOSE_SVG,
-    // profile / nav
-    user: USER_SVG,
-    location: LOCATION_SVG,
-    clock: CLOCK_SVG,
-    leaf: LEAF_SVG,
-    shield: SHIELD_SVG,
-    settings: SETTINGS_SVG,
-    calendar: CALENDAR_SVG,
-    // weather metrics
-    humidity: HUMIDITY_SVG,
-    wind: WIND_SVG,
-    temperature: TEMPERATURE_SVG,
-    rain: RAIN_METRIC_SVG,
-    pressure: PRESSURE_SVG,
-    // sensitivities
-    heat: HEAT_SVG,
-    cold: COLD_SVG,
-    pollen: POLLEN_SVG,
-    uv: UV_SVG,
-    'air-quality': AIR_QUALITY_SVG,
-    precipitation: PRECIPITATION_SVG,
-    // activities
-    running: RUNNING_SVG,
-    cycling: CYCLING_SVG,
-    hiking: HIKING_SVG,
-    gardening: GARDENING_SVG,
-    photography: PHOTOGRAPHY_SVG,
-    golf: GOLF_SVG,
-    'outdoor-dining': DINING_SVG,
-    'dog-walking': DOG_WALKING_SVG,
-    swimming: SWIMMING_SVG,
-    sailing: SAILING_SVG,
-    // fallback
-    unknown: UNKNOWN_SVG
+  // status
+  alert: ALERT_SVG,
+  warning: WARNING_SVG,
+  info: INFO_SVG,
+  check: CHECK_SVG,
+  'check-circle': CHECK_CIRCLE_SVG,
+  close: CLOSE_SVG,
+  // theme
+  sun: SUN_SVG,
+  moon: MOON_SVG,
+  // profile / nav
+  user: USER_SVG,
+  location: LOCATION_SVG,
+  clock: CLOCK_SVG,
+  leaf: LEAF_SVG,
+  shield: SHIELD_SVG,
+  settings: SETTINGS_SVG,
+  calendar: CALENDAR_SVG,
+  // saved-location slots
+  home: HOME_SVG,
+  school: GRADUATION_CAP_SVG,
+  work: BRIEFCASE_SVG,
+  // decorative
+  sparkles: SPARKLES_SVG,
+  // weather metrics
+  humidity: HUMIDITY_SVG,
+  wind: WIND_SVG,
+  temperature: TEMPERATURE_SVG,
+  rain: RAIN_METRIC_SVG,
+  pressure: PRESSURE_SVG,
+  // sensitivities
+  heat: HEAT_SVG,
+  cold: COLD_SVG,
+  pollen: POLLEN_SVG,
+  uv: UV_SVG,
+  'air-quality': AIR_QUALITY_SVG,
+  precipitation: PRECIPITATION_SVG,
+  // activities
+  running: RUNNING_SVG,
+  cycling: CYCLING_SVG,
+  hiking: HIKING_SVG,
+  gardening: GARDENING_SVG,
+  photography: PHOTOGRAPHY_SVG,
+  golf: GOLF_SVG,
+  'outdoor-dining': DINING_SVG,
+  'dog-walking': DOG_WALKING_SVG,
+  swimming: SWIMMING_SVG,
+  sailing: SAILING_SVG,
+  // fallback
+  unknown: UNKNOWN_SVG
 }
 
 // ---------------------------------------------------------------------------
@@ -325,10 +384,10 @@ const ICON_MAP = {
  * @returns {string} SVG markup string
  */
 export function uiIcon(name) {
-    if (_cache.has(name)) return _cache.get(name)
-    const svg = ICON_MAP[name] ?? UNKNOWN_SVG
-    _cache.set(name, svg)
-    return svg
+  if (_cache.has(name)) return _cache.get(name)
+  const svg = ICON_MAP[name] ?? UNKNOWN_SVG
+  _cache.set(name, svg)
+  return svg
 }
 
 /**

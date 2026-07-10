@@ -19,15 +19,16 @@
  */
 import { computed, nextTick, ref, watch } from 'vue'
 import { useUserContext } from '@/composables/useUserContext'
+import { uiIcon } from '@/utils/uiIcons'
 
 const emit = defineEmits(['load-location'])
 
 const { userContext, setContext } = useUserContext()
 
 const locationSlots = [
-  { key: 'home',   label: 'Home',   icon: '🏠', savedId: 'saved-home' },
-  { key: 'school', label: 'School', icon: '🎓', savedId: 'saved-school' },
-  { key: 'work',   label: 'Work',   icon: '💼', savedId: 'saved-work' }
+  { key: 'home',   label: 'Home',   icon: 'home',   savedId: 'saved-home' },
+  { key: 'school', label: 'School', icon: 'school', savedId: 'saved-school' },
+  { key: 'work',   label: 'Work',   icon: 'work',   savedId: 'saved-work' }
 ]
 
 // ── Derive slot values from context ─────────────────────────────────────────
@@ -166,7 +167,7 @@ watch(editingSlot, async (slotKey) => {
         @mouseleave="cancelPress" @touchstart.prevent="startPress(slot.key)" @touchend="endPress"
         @touchcancel="cancelPress">
         <span class="saved-location-label">
-          <span aria-hidden="true">{{ slot.icon }}</span>
+          <span class="saved-location-slot-icon" aria-hidden="true" v-html="uiIcon(slot.icon)"></span>
           <span v-if="savedMap[slot.key]" class="saved-location-name">
             {{ savedMap[slot.key] }}
           </span>
@@ -232,6 +233,9 @@ watch(editingSlot, async (slotKey) => {
 .saved-location-button.empty { opacity: 0.7; }
 
 .saved-location-label { display: inline-flex; align-items: center; gap: var(--lc-sp-2); min-width: 0; }
+
+.saved-location-slot-icon { display: flex; align-items: center; flex-shrink: 0; }
+.saved-location-slot-icon svg { width: 14px; height: 14px; }
 
 .saved-location-name,
 .saved-location-empty-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

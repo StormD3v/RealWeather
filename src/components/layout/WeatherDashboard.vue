@@ -14,7 +14,7 @@
       aria-label="Set up your profile"
     >
       <div class="profile-prompt-content">
-        <span class="profile-prompt-icon" aria-hidden="true">✨</span>
+        <span class="profile-prompt-icon" aria-hidden="true" v-html="uiIcon('sparkles')"></span>
         <div class="profile-prompt-text">
           <strong>Personalise your forecast</strong>
           <span>Add your location, routine, and activities — Lumi will make your briefings personal.</span>
@@ -223,6 +223,7 @@ import { useWeatherStore } from '@/stores/weather'
 import { useTemperatureUnit } from '@/composables/useWeatherFormatters'
 import { formatDay, formatHour, capitalize } from '@/composables/useWeatherFormatters'
 import { iconSvg, resolveWeatherIconKey, resolveWeatherAnimationClass } from '@/composables/useWeatherIcons'
+import { uiIcon } from '@/utils/uiIcons'
 
 // Phase 3.1 imports
 import { useUserContext } from '@/composables/useUserContext'
@@ -338,7 +339,8 @@ watch(
   min-width: 0;
 }
 
-.profile-prompt-icon { font-size: 1.25rem; flex-shrink: 0; }
+.profile-prompt-icon { display: flex; align-items: center; flex-shrink: 0; }
+.profile-prompt-icon svg { width: 20px; height: 20px; color: var(--lc-accent); }
 
 .profile-prompt-text {
   display: flex;
