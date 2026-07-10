@@ -1,7 +1,10 @@
 <template>
     <div class="calendar-card">
         <div class="calendar-card-header">
-            <h3>🗓️ My Day Planner</h3>
+            <h3>
+              <span class="card-header-icon" v-html="uiIcon('calendar')" aria-hidden="true"></span>
+              My Day Planner
+            </h3>
             <div class="input-row">
                 <input type="text" v-model="eventName" placeholder="Event name" aria-label="Event name" />
                 <input type="time" v-model="eventTime" aria-label="Event time" />
@@ -22,15 +25,20 @@
                         <p class="event-time">{{ event.time }}</p>
                     </div>
                     <button type="button" class="delete-btn" @click="removeEvent(index)"
-                        aria-label="Delete event">✕</button>
+                        aria-label="Delete event">
+                        <span v-html="uiIcon('close')" aria-hidden="true"></span>
+                    </button>
                 </div>
 
                 <div class="event-metrics">
                     <div class="weather-info">
-                        <span class="weather-icon">{{ forecastIcon(eventForecast(event)) }}</span>
+                        <span class="weather-icon" v-html="forecastIcon(eventForecast(event))" aria-hidden="true"></span>
                         <span class="weather-temp">{{ eventForecast(event)?.tempText ?? 'No forecast' }}</span>
                     </div>
-                    <span class="status-badge">{{ eventStatus(event).label }}</span>
+                    <span class="status-badge">
+                        <span class="status-icon" v-html="eventStatus(event).icon" aria-hidden="true"></span>
+                        {{ eventStatus(event).label }}
+                    </span>
                 </div>
 
                 <p v-if="eventStatus(event).suggestion" class="suggestion-text">
@@ -43,6 +51,8 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
+import { iconSvg } from '@/composables/useWeatherIcons'
+import { uiIcon } from '@/utils/uiIcons'
 
 const props = defineProps({
     hourlyForecast: {
@@ -144,7 +154,8 @@ const eventStatus = (event) => {
 
     if (rainRisk && !windRisk) {
         return {
-            label: '🌧️ Rain Expected',
+            label: 'Rain Expected',
+            icon: uiIcon('rain'),
             variant: 'rain',
             suggestion
         }
@@ -152,14 +163,16 @@ const eventStatus = (event) => {
 
     if (rainRisk || windRisk) {
         return {
-            label: '⚠️ At Risk',
+            label: 'At Risk',
+            icon: uiIcon('warning'),
             variant: 'at-risk',
             suggestion
         }
     }
 
     return {
-        label: '✅ Clear',
+        label: 'Clear',
+        icon: uiIcon('check-circle'),
         variant: 'clear',
         suggestion: ''
     }
@@ -201,29 +214,10 @@ const findSafeWindow = (timeString) => {
 
 const forecastIcon = (slot) => {
     if (!slot || !slot.weather || !slot.weather.length) {
-        return '❔'
+        return uiIcon('unknown')
     }
-
     const main = slot.weather[0].main || ''
-    switch (main) {
-        case 'Clear':
-            return '☀️'
-        case 'Clouds':
-            return '☁️'
-        case 'Rain':
-        case 'Drizzle':
-            return '🌧️'
-        case 'Thunderstorm':
-            return '⛈️'
-        case 'Snow':
-            return '❄️'
-        case 'Mist':
-        case 'Fog':
-        case 'Haze':
-            return '🌫️'
-        default:
-            return '🌤️'
-    }
+    return iconSvg(main || 'Clear')
 }
 
 const eventRiskClass = (event) => {
@@ -276,7 +270,13 @@ onMounted(() => {
   font-size: var(--lc-text-h3);
   font-weight: var(--lc-weight-bold);
   color: var(--lc-green);
+  display: flex;
+  align-items: center;
+  gap: var(--lc-sp-2);
 }
+
+.card-header-icon { display: inline-flex; width: 20px; height: 20px; flex-shrink: 0; }
+.card-header-icon :deep(svg) { width: 20px; height: 20px; color: var(--lc-green); }
 
 .input-row { display: flex; flex-wrap: wrap; gap: var(--lc-sp-3); align-items: center; }
 
@@ -341,13 +341,19 @@ onMounted(() => {
   min-height: 34px;
   border-radius: var(--lc-radius-md);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: background var(--lc-transition-hover), color var(--lc-transition-hover);
 }
+.delete-btn :deep(svg) { width: 16px; height: 16px; }
 .delete-btn:hover { background: var(--lc-error-subtle); color: var(--lc-error); }
 
 .event-metrics { display: flex; flex-wrap: wrap; gap: var(--lc-sp-3); align-items: center; }
 
 .weather-info { display: inline-flex; align-items: center; gap: var(--lc-sp-2); font-size: var(--lc-text-body-sm); color: var(--lc-text-secondary); }
+.weather-icon { display: inline-flex; width: 22px; height: 22px; flex-shrink: 0; }
+.weather-icon :deep(svg) { width: 22px; height: 22px; }
 .weather-temp { font-weight: var(--lc-weight-semibold); }
 
 .status-badge {
@@ -363,6 +369,9 @@ onMounted(() => {
   white-space: nowrap;
   border: 1px solid var(--lc-border-glass);
 }
+
+.status-icon { display: inline-flex; width: 14px; height: 14px; flex-shrink: 0; }
+.status-icon :deep(svg) { width: 14px; height: 14px; }
 
 .suggestion-text { margin: 0; color: var(--lc-warning); font-size: var(--lc-text-caption); font-weight: var(--lc-weight-semibold); }
 

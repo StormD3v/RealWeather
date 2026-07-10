@@ -52,9 +52,9 @@ describe('WeatherRiskAlertsCard — Phase 3.3', () => {
         expect(wrapper.find('.alerts-content').exists()).toBe(false)
     })
 
-    it('shows ✓ icon in no-alerts state', () => {
+    it('shows SVG icon in no-alerts state', () => {
         const wrapper = mount(WeatherRiskAlertsCard)
-        expect(wrapper.find('.no-alerts-icon').text()).toBe('✓')
+        expect(wrapper.find('.no-alerts-icon svg').exists()).toBe(true)
     })
 
     // ── Alert rendering ───────────────────────────────────────────────────
@@ -94,16 +94,16 @@ describe('WeatherRiskAlertsCard — Phase 3.3', () => {
         expect(wrapper.find('.alert-item').classes()).not.toContain('high')
     })
 
-    it('assigns correct icon for heads-up urgency', () => {
+    it('assigns correct SVG icon for heads-up urgency', () => {
         mockAlertInsights.value = [makeInsight({ urgency: 'heads-up' })]
         const wrapper = mount(WeatherRiskAlertsCard)
-        expect(wrapper.find('.alert-icon').text()).toBe('⚠️')
+        expect(wrapper.find('.alert-icon svg').exists()).toBe(true)
     })
 
-    it('assigns correct icon for alert urgency', () => {
+    it('assigns correct SVG icon for alert urgency', () => {
         mockAlertInsights.value = [makeInsight({ urgency: 'alert', content: 'Storm.', actionPath: 'Shelter.' })]
         const wrapper = mount(WeatherRiskAlertsCard)
-        expect(wrapper.find('.alert-icon').text()).toBe('🔴')
+        expect(wrapper.find('.alert-icon svg').exists()).toBe(true)
     })
 
     // ── Multiple alerts ───────────────────────────────────────────────────

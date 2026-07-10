@@ -18,6 +18,7 @@ import { useUserContext } from '@/composables/useUserContext'
 import { useBehavioralSignals } from '@/composables/useBehavioralSignals'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import ProfileSetupFlow from '@/components/ui/profile/ProfileSetupFlow.vue'
+import { uiIcon } from '@/utils/uiIcons'
 
 const emit = defineEmits(['profile-changed'])
 
@@ -131,7 +132,7 @@ onMounted(() => {
     <!-- ── Empty / first-run state ── -->
     <div v-if="contextQuality === 'none'" class="profile-empty">
       <div class="profile-empty-text">
-        <span class="profile-empty-icon" aria-hidden="true">👤</span>
+        <span class="profile-empty-icon" aria-hidden="true" v-html="uiIcon('user')"></span>
         <div>
           <p class="profile-empty-heading">Personalise LumiCast</p>
           <p class="profile-empty-desc">Add your location and routine to get smarter, more relevant weather insights.</p>
@@ -146,22 +147,22 @@ onMounted(() => {
     <div v-else class="profile-summary">
       <div class="profile-summary-grid">
         <div class="summary-item">
-          <span class="summary-icon" aria-hidden="true">📍</span>
+          <span class="summary-icon" aria-hidden="true" v-html="uiIcon('location')"></span>
           <span class="summary-label">Location</span>
           <span class="summary-value">{{ locationLabel }}</span>
         </div>
         <div class="summary-item">
-          <span class="summary-icon" aria-hidden="true">🕐</span>
+          <span class="summary-icon" aria-hidden="true" v-html="uiIcon('clock')"></span>
           <span class="summary-label">Departure</span>
           <span class="summary-value">{{ departureLabel }}</span>
         </div>
         <div class="summary-item">
-          <span class="summary-icon" aria-hidden="true">🌿</span>
+          <span class="summary-icon" aria-hidden="true" v-html="uiIcon('leaf')"></span>
           <span class="summary-label">Activities</span>
           <span class="summary-value">{{ activitiesLabel }}</span>
         </div>
         <div class="summary-item">
-          <span class="summary-icon" aria-hidden="true">🛡️</span>
+          <span class="summary-icon" aria-hidden="true" v-html="uiIcon('shield')"></span>
           <span class="summary-label">Sensitivities</span>
           <span class="summary-value">{{ sensitivitiesLabel }}</span>
         </div>
@@ -290,7 +291,8 @@ onMounted(() => {
   min-width: 0;
 }
 
-.profile-empty-icon { font-size: 1.5rem; line-height: 1; flex-shrink: 0; }
+.profile-empty-icon { font-size: 1.5rem; line-height: 1; flex-shrink: 0; width: 28px; height: 28px; display: inline-flex; }
+.profile-empty-icon :deep(svg) { width: 28px; height: 28px; }
 
 .profile-empty-heading {
   margin: 0 0 2px;
@@ -327,7 +329,8 @@ onMounted(() => {
   overflow: hidden;
 }
 
-.summary-icon { font-size: 1rem; line-height: 1.2; flex-shrink: 0; }
+.summary-icon { line-height: 1.2; flex-shrink: 0; width: 18px; height: 18px; display: inline-flex; }
+.summary-icon :deep(svg) { width: 18px; height: 18px; }
 
 .summary-item > :not(.summary-icon) { display: flex; flex-direction: column; gap: 1px; min-width: 0; overflow: hidden; }
 

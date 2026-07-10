@@ -7,6 +7,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useUserContext } from '@/composables/useUserContext'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import { uiIcon } from '@/utils/uiIcons'
 
 const emit = defineEmits(['complete', 'skip'])
 
@@ -96,7 +97,7 @@ function skip() {
 <template>
   <div class="step-routine">
     <div class="step-header">
-      <span class="step-icon" aria-hidden="true">🕐</span>
+      <span class="step-icon" aria-hidden="true" v-html="uiIcon('clock')"></span>
       <div>
         <h2 class="step-title">Your daily routine</h2>
         <p class="step-desc">Tell Lumi when you typically leave and arrive, so it can time its advice around your day.</p>
@@ -187,7 +188,8 @@ function skip() {
 .step-routine { display: flex; flex-direction: column; gap: var(--lc-sp-5); }
 
 .step-header { display: flex; align-items: flex-start; gap: var(--lc-sp-3); }
-.step-icon { font-size: 1.5rem; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+.step-icon { line-height: 1; flex-shrink: 0; margin-top: 2px; display: inline-flex; width: 28px; height: 28px; }
+.step-icon :deep(svg) { width: 28px; height: 28px; }
 .step-title { margin: 0 0 var(--lc-sp-1); font-size: var(--lc-text-h3); font-weight: var(--lc-weight-bold); color: var(--lc-text-primary); }
 .step-desc { margin: 0; font-size: var(--lc-text-body-sm); color: var(--lc-text-muted); line-height: var(--lc-leading-relaxed); }
 

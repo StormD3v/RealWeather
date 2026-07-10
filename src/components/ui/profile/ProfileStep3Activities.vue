@@ -8,22 +8,23 @@ import { ref, onMounted } from 'vue'
 import { useUserContext } from '@/composables/useUserContext'
 import { getActivityProfile, ALL_ACTIVITY_KEYS } from '@/utils/activityProfiles'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import { uiIcon } from '@/utils/uiIcons'
 
 const emit = defineEmits(['complete', 'skip'])
 
 const { userContext, setContext } = useUserContext()
 
 const ACTIVITY_META = {
-  running:         { label: 'Running',       icon: '🏃' },
-  cycling:         { label: 'Cycling',       icon: '🚴' },
-  hiking:          { label: 'Hiking',        icon: '🥾' },
-  gardening:       { label: 'Gardening',     icon: '🌱' },
-  photography:     { label: 'Photography',   icon: '📷' },
-  golf:            { label: 'Golf',          icon: '⛳' },
-  'outdoor-dining':{ label: 'Outdoor Dining',icon: '🍽️' },
-  'dog-walking':   { label: 'Dog Walking',   icon: '🐕' },
-  swimming:        { label: 'Swimming',      icon: '🏊' },
-  sailing:         { label: 'Sailing',       icon: '⛵' }
+  running:         { label: 'Running',       icon: 'running' },
+  cycling:         { label: 'Cycling',       icon: 'cycling' },
+  hiking:          { label: 'Hiking',        icon: 'hiking' },
+  gardening:       { label: 'Gardening',     icon: 'gardening' },
+  photography:     { label: 'Photography',   icon: 'photography' },
+  golf:            { label: 'Golf',          icon: 'golf' },
+  'outdoor-dining':{ label: 'Outdoor Dining',icon: 'outdoor-dining' },
+  'dog-walking':   { label: 'Dog Walking',   icon: 'dog-walking' },
+  swimming:        { label: 'Swimming',      icon: 'swimming' },
+  sailing:         { label: 'Sailing',       icon: 'sailing' }
 }
 
 const FREQUENCIES = [
@@ -75,7 +76,7 @@ function skip() {
 <template>
   <div class="step-activities">
     <div class="step-header">
-      <span class="step-icon" aria-hidden="true">🌿</span>
+      <span class="step-icon" aria-hidden="true" v-html="uiIcon('leaf')"></span>
       <div>
         <h2 class="step-title">Your outdoor activities</h2>
         <p class="step-desc">Select the activities you do outdoors. Lumi will tailor its recommendations to what matters for each one.</p>
@@ -95,9 +96,9 @@ function skip() {
         @keydown.space.prevent="toggleActivity(key)"
         @keydown.enter.prevent="toggleActivity(key)"
       >
-        <span class="activity-icon" aria-hidden="true">{{ ACTIVITY_META[key].icon }}</span>
+        <span class="activity-icon" aria-hidden="true" v-html="uiIcon(ACTIVITY_META[key].icon)"></span>
         <span class="activity-label">{{ ACTIVITY_META[key].label }}</span>
-        <span v-if="selections[key].selected" class="activity-check" aria-hidden="true">✓</span>
+        <span v-if="selections[key].selected" class="activity-check" aria-hidden="true" v-html="uiIcon('check')"></span>
       </div>
     </div>
 
@@ -114,7 +115,7 @@ function skip() {
           class="frequency-row"
         >
           <span class="freq-activity-name">
-            <span aria-hidden="true">{{ ACTIVITY_META[key].icon }}</span>
+            <span aria-hidden="true" v-html="uiIcon(ACTIVITY_META[key].icon)"></span>
             {{ ACTIVITY_META[key].label }}
           </span>
           <div class="freq-buttons" role="group" :aria-label="`Frequency for ${ACTIVITY_META[key].label}`">
@@ -149,7 +150,8 @@ function skip() {
 .step-activities { display: flex; flex-direction: column; gap: var(--lc-sp-5); }
 
 .step-header { display: flex; align-items: flex-start; gap: var(--lc-sp-3); }
-.step-icon { font-size: 1.5rem; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+.step-icon { line-height: 1; flex-shrink: 0; margin-top: 2px; display: inline-flex; width: 28px; height: 28px; }
+.step-icon :deep(svg) { width: 28px; height: 28px; }
 .step-title { margin: 0 0 var(--lc-sp-1); font-size: var(--lc-text-h3); font-weight: var(--lc-weight-bold); color: var(--lc-text-primary); }
 .step-desc { margin: 0; font-size: var(--lc-text-body-sm); color: var(--lc-text-muted); line-height: var(--lc-leading-relaxed); }
 
@@ -182,17 +184,20 @@ function skip() {
   background: var(--lc-green-subtle);
 }
 
-.activity-icon { font-size: 1.5rem; line-height: 1; }
+.activity-icon { display: inline-flex; width: 28px; height: 28px; flex-shrink: 0; }
+.activity-icon :deep(svg) { width: 28px; height: 28px; }
 .activity-label { font-size: var(--lc-text-caption); font-weight: var(--lc-weight-semibold); color: var(--lc-text-primary); text-align: center; }
 
 .activity-check {
   position: absolute;
   top: 4px;
   right: 6px;
-  font-size: 0.7rem;
-  font-weight: var(--lc-weight-bold);
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
   color: var(--lc-green);
 }
+.activity-check :deep(svg) { width: 14px; height: 14px; }
 
 .frequency-section { display: flex; flex-direction: column; gap: var(--lc-sp-3); }
 
@@ -223,6 +228,9 @@ function skip() {
   color: var(--lc-text-primary);
   min-width: 120px;
 }
+
+.freq-activity-name > span:first-child { display: inline-flex; width: 18px; height: 18px; flex-shrink: 0; }
+.freq-activity-name > span:first-child :deep(svg) { width: 18px; height: 18px; }
 
 .freq-buttons { display: flex; gap: var(--lc-sp-1); flex-wrap: wrap; }
 

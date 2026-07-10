@@ -12,7 +12,7 @@
 
         <div v-if="showConfirmation" class="notification-banner confirmation-banner">
             <div class="notification-content">
-                <p class="notification-message">✅ Notifications enabled</p>
+                <p class="notification-message">Notifications enabled</p>
             </div>
         </div>
     </div>

@@ -38,20 +38,31 @@
       <div class="factors-title">Impact Factors</div>
       <div class="factors-grid">
         <div class="factor-chip">
-          <span class="factor-label">🌧️ RAIN</span>
-          <span class="factor-value">{{ currentWeather?.rain?.['3h'] || currentWeather?.rain?.['1h'] || '0.0' }}
-            mm</span>
+          <span class="factor-label">
+            <span class="factor-icon" v-html="uiIcon('rain')" aria-hidden="true"></span>
+            RAIN
+          </span>
+          <span class="factor-value">{{ currentWeather?.rain?.['3h'] || currentWeather?.rain?.['1h'] || '0.0' }} mm</span>
         </div>
         <div class="factor-chip">
-          <span class="factor-label">💨 WIND</span>
+          <span class="factor-label">
+            <span class="factor-icon" v-html="uiIcon('wind')" aria-hidden="true"></span>
+            WIND
+          </span>
           <span class="factor-value">{{ currentWeather?.wind?.speed || 0 }} km/h</span>
         </div>
         <div class="factor-chip">
-          <span class="factor-label">🌡️ TEMP</span>
+          <span class="factor-label">
+            <span class="factor-icon" v-html="uiIcon('temperature')" aria-hidden="true"></span>
+            TEMP
+          </span>
           <span class="factor-value">{{ Math.round(currentWeather?.main?.temp || 0) }}&deg;{{ unitSymbol }}</span>
         </div>
         <div class="factor-chip">
-          <span class="factor-label">🌡️ PRESSURE</span>
+          <span class="factor-label">
+            <span class="factor-icon" v-html="uiIcon('pressure')" aria-hidden="true"></span>
+            PRESSURE
+          </span>
           <span class="factor-value">{{ currentWeather?.main?.pressure && currentWeather?.main?.pressure > 0 ?
             currentWeather?.main?.pressure : 'N/A' }} hPa</span>
         </div>
@@ -62,6 +73,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { uiIcon } from '@/utils/uiIcons'
 
 const props = defineProps({
   impactScore: {
@@ -189,6 +201,9 @@ const trendLinePoints = computed(() =>
 .factor-chip:hover { background: var(--lc-surface-hover); transform: translateY(-1px); }
 
 .factor-label {
+  display: flex;
+  align-items: center;
+  gap: var(--lc-sp-1);
   font-size: var(--lc-text-label-sm);
   color: var(--lc-text-muted);
   margin-bottom: var(--lc-sp-2);
@@ -196,6 +211,9 @@ const trendLinePoints = computed(() =>
   letter-spacing: var(--lc-tracking-wider);
   font-weight: var(--lc-weight-semibold);
 }
+
+.factor-icon { display: inline-flex; width: 14px; height: 14px; flex-shrink: 0; }
+.factor-icon :deep(svg) { width: 14px; height: 14px; }
 
 .factor-value { font-size: var(--lc-text-body-sm); font-weight: var(--lc-weight-semibold); color: var(--lc-text-primary); line-height: 1; }
 

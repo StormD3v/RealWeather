@@ -10,6 +10,7 @@ import { useWeatherStore } from '@/stores/weather'
 import { useUserContext } from '@/composables/useUserContext'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
+import { uiIcon } from '@/utils/uiIcons'
 
 const emit = defineEmits(['complete', 'skip'])
 
@@ -92,7 +93,7 @@ function skip() {
 <template>
   <div class="step-location">
     <div class="step-header">
-      <span class="step-icon" aria-hidden="true">📍</span>
+      <span class="step-icon" aria-hidden="true" v-html="uiIcon('location')"></span>
       <div>
         <h2 class="step-title">Your home location</h2>
         <p class="step-desc">LumiCast uses this to load weather automatically when you open the app.</p>
@@ -129,7 +130,7 @@ function skip() {
     </div>
 
     <div v-if="resolvedCity" class="resolved-location" role="status" aria-live="polite">
-      <span class="resolved-icon" aria-hidden="true">✓</span>
+      <span class="resolved-icon" aria-hidden="true" v-html="uiIcon('check')"></span>
       <span class="resolved-name">{{ resolvedCity.name }}</span>
       <span class="resolved-coords">({{ resolvedCity.lat.toFixed(2) }}, {{ resolvedCity.lon.toFixed(2) }})</span>
     </div>
@@ -160,7 +161,8 @@ function skip() {
   gap: var(--lc-sp-3);
 }
 
-.step-icon { font-size: 1.5rem; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+.step-icon { line-height: 1; flex-shrink: 0; margin-top: 2px; display: inline-flex; width: 28px; height: 28px; }
+.step-icon :deep(svg) { width: 28px; height: 28px; }
 
 .step-title {
   margin: 0 0 var(--lc-sp-1);
@@ -226,7 +228,8 @@ function skip() {
   font-size: var(--lc-text-body-sm);
 }
 
-.resolved-icon { color: var(--lc-green); font-style: normal; font-weight: var(--lc-weight-bold); }
+.resolved-icon { color: var(--lc-green); font-style: normal; font-weight: var(--lc-weight-bold); display: inline-flex; width: 16px; height: 16px; }
+.resolved-icon :deep(svg) { width: 16px; height: 16px; }
 .resolved-name { font-weight: var(--lc-weight-semibold); color: var(--lc-text-primary); }
 .resolved-coords { color: var(--lc-text-muted); font-size: var(--lc-text-caption); }
 

@@ -9,7 +9,7 @@
         class="alert-item"
         :class="item.severity"
       >
-        <div class="alert-icon">{{ item.icon }}</div>
+        <div class="alert-icon" v-html="item.icon" aria-hidden="true"></div>
         <div class="alert-info">
           <div class="alert-title">{{ item.title }}</div>
           <div class="alert-description">{{ item.description }}</div>
@@ -18,7 +18,7 @@
     </div>
 
     <div class="no-alerts" v-else>
-      <div class="no-alerts-icon">✓</div>
+      <div class="no-alerts-icon" aria-hidden="true" v-html="uiIcon('check-circle')"></div>
       <div class="no-alerts-text">No severe weather alerts</div>
     </div>
   </div>
@@ -36,6 +36,7 @@
  */
 import { computed } from 'vue'
 import { useInsightEngine } from '@/composables/useInsightEngine'
+import { uiIcon } from '@/utils/uiIcons'
 
 // Backwards-compatible props (unused by new logic)
 defineProps({
@@ -53,9 +54,9 @@ const hasAlerts = computed(() => alertInsights.value.length > 0)
  *   alert    → 'severe' (red-tinted existing style)
  */
 function urgencyToIcon(urgency) {
-  if (urgency === 'alert')    return '🔴'
-  if (urgency === 'heads-up') return '⚠️'
-  return 'ℹ️'
+  if (urgency === 'alert')    return uiIcon('alert')
+  if (urgency === 'heads-up') return uiIcon('warning')
+  return uiIcon('info')
 }
 
 function urgencyToSeverity(urgency) {
@@ -91,7 +92,8 @@ const mappedAlerts = computed(() =>
 .alert-item.severe { background: var(--lc-severe-subtle); border: 1px solid rgba(220,38,38,0.30); }
 .alert-item:hover  { transform: translateY(-2px); }
 
-.alert-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; }
+.alert-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.alert-icon :deep(svg) { width: 22px; height: 22px; }
 .alert-info { flex: 1; }
 .alert-title { font-size: var(--lc-text-body-sm); font-weight: var(--lc-weight-semibold); color: var(--lc-text-primary); margin-bottom: var(--lc-sp-1); }
 .alert-description { font-size: var(--lc-text-caption); color: var(--lc-text-secondary); line-height: var(--lc-leading-normal); }
@@ -103,9 +105,9 @@ const mappedAlerts = computed(() =>
   background: var(--lc-success-subtle);
   border: 1px solid rgba(34,197,94,0.2);
   border-radius: var(--lc-radius-full);
-  font-size: 1.4rem;
   margin-bottom: var(--lc-sp-3);
 }
+.no-alerts-icon :deep(svg) { width: 24px; height: 24px; }
 .no-alerts-text { font-size: var(--lc-text-body-sm); color: var(--lc-text-muted); font-weight: var(--lc-weight-medium); }
 
 @media (max-width: 768px) {

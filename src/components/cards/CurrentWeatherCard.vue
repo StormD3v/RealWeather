@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { uiIcon } from '@/utils/uiIcons'
 
 const props = defineProps({
   loading: Boolean,
@@ -156,19 +157,31 @@ function trendArrow(value) {
           <!-- Stats Grid -->
           <div class="stats-grid">
             <div class="stat-item">
-              <span class="stat-label">💧 HUMIDITY</span>
+              <span class="stat-label">
+                <span class="stat-icon" v-html="uiIcon('humidity')" aria-hidden="true"></span>
+                HUMIDITY
+              </span>
               <span class="stat-value">{{ humidity }}</span>
             </div>
             <div class="stat-item">
-              <span class="stat-label">💨 WIND SPEED</span>
+              <span class="stat-label">
+                <span class="stat-icon" v-html="uiIcon('wind')" aria-hidden="true"></span>
+                WIND SPEED
+              </span>
               <span class="stat-value">{{ windDisplay }}</span>
             </div>
             <div class="stat-item">
-              <span class="stat-label">🌡️ PRESSURE</span>
+              <span class="stat-label">
+                <span class="stat-icon" v-html="uiIcon('pressure')" aria-hidden="true"></span>
+                PRESSURE
+              </span>
               <span class="stat-value">{{ pressure }}</span>
             </div>
             <div class="stat-item">
-              <span class="stat-label">🌧️ RAIN CHANCE TODAY</span>
+              <span class="stat-label">
+                <span class="stat-icon" v-html="uiIcon('rain')" aria-hidden="true"></span>
+                RAIN CHANCE TODAY
+              </span>
               <span class="stat-value">{{ rainChance }}</span>
             </div>
           </div>
@@ -291,12 +304,18 @@ function trendArrow(value) {
 .stat-item:hover { background: var(--lc-surface-hover); }
 
 .stat-label {
+  display: flex;
+  align-items: center;
+  gap: var(--lc-sp-1);
   font-size: var(--lc-text-label);
   color: var(--lc-text-muted);
   text-transform: uppercase;
   letter-spacing: var(--lc-tracking-wider);
   font-weight: var(--lc-weight-semibold);
 }
+
+.stat-icon { display: inline-flex; width: 14px; height: 14px; flex-shrink: 0; }
+.stat-icon :deep(svg) { width: 14px; height: 14px; }
 
 .stat-value {
   align-self: end;

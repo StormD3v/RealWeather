@@ -8,18 +8,19 @@
 import { ref, onMounted } from 'vue'
 import { useUserContext } from '@/composables/useUserContext'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import { uiIcon } from '@/utils/uiIcons'
 
 const emit = defineEmits(['complete', 'skip'])
 
 const { userContext, setContext } = useUserContext()
 
 const SENSITIVITIES = [
-  { key: 'heat',         icon: '🌡️', label: 'Heat',          desc: 'I feel the heat more than most people' },
-  { key: 'cold',         icon: '❄️', label: 'Cold',          desc: 'I feel cold more easily than most people' },
-  { key: 'pollen',       icon: '🌸', label: 'Pollen',        desc: 'High pollen levels affect me noticeably' },
-  { key: 'uv',           icon: '☀️', label: 'UV',            desc: "I'm sensitive to strong sun and UV exposure" },
-  { key: 'airQuality',   icon: '💨', label: 'Air Quality',   desc: 'Poor air quality affects my breathing or wellbeing' },
-  { key: 'precipitation',icon: '🌧️', label: 'Precipitation', desc: 'Rain significantly changes my outdoor plans' }
+  { key: 'heat',         icon: 'heat',         label: 'Heat',          desc: 'I feel the heat more than most people' },
+  { key: 'cold',         icon: 'cold',         label: 'Cold',          desc: 'I feel cold more easily than most people' },
+  { key: 'pollen',       icon: 'pollen',       label: 'Pollen',        desc: 'High pollen levels affect me noticeably' },
+  { key: 'uv',           icon: 'uv',           label: 'UV',            desc: "I'm sensitive to strong sun and UV exposure" },
+  { key: 'airQuality',   icon: 'air-quality',  label: 'Air Quality',   desc: 'Poor air quality affects my breathing or wellbeing' },
+  { key: 'precipitation',icon: 'precipitation',label: 'Precipitation', desc: 'Rain significantly changes my outdoor plans' }
 ]
 
 const flags = ref({
@@ -49,7 +50,7 @@ function skip() {
 <template>
   <div class="step-sensitivities">
     <div class="step-header">
-      <span class="step-icon" aria-hidden="true">🛡️</span>
+      <span class="step-icon" aria-hidden="true" v-html="uiIcon('shield')"></span>
       <div>
         <h2 class="step-title">Your sensitivities</h2>
         <p class="step-desc">Lumi uses these to adjust when it alerts you. Everything is optional — only tick what applies to you.</p>
@@ -69,12 +70,12 @@ function skip() {
           v-model="flags[s.key]"
           :aria-label="s.label + ': ' + s.desc"
         />
-        <span class="sensitivity-icon" aria-hidden="true">{{ s.icon }}</span>
+        <span class="sensitivity-icon" aria-hidden="true" v-html="uiIcon(s.icon)"></span>
         <span class="sensitivity-text">
           <span class="sensitivity-label">{{ s.label }}</span>
           <span class="sensitivity-desc">{{ s.desc }}</span>
         </span>
-        <span v-if="flags[s.key]" class="sensitivity-check" aria-hidden="true">✓</span>
+        <span v-if="flags[s.key]" class="sensitivity-check" aria-hidden="true" v-html="uiIcon('check')"></span>
       </label>
     </div>
 
@@ -93,7 +94,8 @@ function skip() {
 .step-sensitivities { display: flex; flex-direction: column; gap: var(--lc-sp-5); }
 
 .step-header { display: flex; align-items: flex-start; gap: var(--lc-sp-3); }
-.step-icon { font-size: 1.5rem; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+.step-icon { line-height: 1; flex-shrink: 0; margin-top: 2px; display: inline-flex; width: 28px; height: 28px; }
+.step-icon :deep(svg) { width: 28px; height: 28px; }
 .step-title { margin: 0 0 var(--lc-sp-1); font-size: var(--lc-text-h3); font-weight: var(--lc-weight-bold); color: var(--lc-text-primary); }
 .step-desc { margin: 0; font-size: var(--lc-text-body-sm); color: var(--lc-text-muted); line-height: var(--lc-leading-relaxed); }
 
@@ -128,7 +130,8 @@ function skip() {
   cursor: pointer;
 }
 
-.sensitivity-icon { font-size: 1.25rem; line-height: 1; flex-shrink: 0; }
+.sensitivity-icon { display: inline-flex; width: 22px; height: 22px; flex-shrink: 0; }
+.sensitivity-icon :deep(svg) { width: 22px; height: 22px; }
 
 .sensitivity-text { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
 .sensitivity-label { font-size: var(--lc-text-body-sm); font-weight: var(--lc-weight-semibold); color: var(--lc-text-primary); }
@@ -136,10 +139,12 @@ function skip() {
 
 .sensitivity-check {
   flex-shrink: 0;
-  font-size: var(--lc-text-body-sm);
-  font-weight: var(--lc-weight-bold);
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
   color: var(--lc-green);
 }
+.sensitivity-check :deep(svg) { width: 16px; height: 16px; }
 
 .step-actions { display: flex; gap: var(--lc-sp-3); align-items: center; flex-wrap: wrap; }
 </style>

@@ -15,6 +15,8 @@
 import { computed } from 'vue'
 import { useInsightEngine } from '@/composables/useInsightEngine'
 import { useWeatherStore } from '@/stores/weather'
+import { uiIcon } from '@/utils/uiIcons'
+import { iconSvg } from '@/composables/useWeatherIcons'
 
 // ── Backwards-compatible props (unused by new logic, kept so parent doesn't break) ──
 defineProps({
@@ -48,7 +50,10 @@ const secondaryInsight = computed(() => {
 
 <template>
   <div class="morning-briefing-card">
-    <h3 class="morning-briefing-title">☀️ Morning Briefing</h3>
+    <h3 class="morning-briefing-title">
+      <span class="title-icon" v-html="iconSvg('Clear')" aria-hidden="true"></span>
+      Morning Briefing
+    </h3>
 
     <div class="briefing-content">
 
@@ -65,10 +70,14 @@ const secondaryInsight = computed(() => {
         <div class="insight-block" :class="`insight-block--${primaryInsight.urgency}`">
           <div class="insight-header">
             <span class="insight-badge" :class="`badge--${primaryInsight.urgency}`">
-              <span v-if="primaryInsight.urgency === 'alert'">🔴 Alert</span>
-              <span v-else-if="primaryInsight.urgency === 'heads-up'">⚠️ Heads up</span>
-              <span v-else-if="primaryInsight.urgency === 'useful'">ℹ️ Today</span>
-              <span v-else>✓ Today</span>
+              <span class="badge-icon" v-if="primaryInsight.urgency === 'alert'"    v-html="uiIcon('alert')"   aria-hidden="true"></span>
+              <span class="badge-icon" v-else-if="primaryInsight.urgency === 'heads-up'" v-html="uiIcon('warning')" aria-hidden="true"></span>
+              <span class="badge-icon" v-else-if="primaryInsight.urgency === 'useful'"   v-html="uiIcon('info')"    aria-hidden="true"></span>
+              <span class="badge-icon" v-else                                            v-html="uiIcon('check')"   aria-hidden="true"></span>
+              <span v-if="primaryInsight.urgency === 'alert'">Alert</span>
+              <span v-else-if="primaryInsight.urgency === 'heads-up'">Heads up</span>
+              <span v-else-if="primaryInsight.urgency === 'useful'">Today</span>
+              <span v-else>Today</span>
             </span>
           </div>
           <p class="insight-content">{{ primaryInsight.content }}</p>
@@ -118,7 +127,13 @@ const secondaryInsight = computed(() => {
   font-size: var(--lc-text-h3);
   font-weight: var(--lc-weight-bold);
   color: var(--lc-green);
+  display: flex;
+  align-items: center;
+  gap: var(--lc-sp-2);
 }
+
+.title-icon { display: inline-flex; width: 20px; height: 20px; flex-shrink: 0; }
+.title-icon :deep(svg) { width: 20px; height: 20px; }
 
 .briefing-content { display: flex; flex-direction: column; gap: var(--lc-sp-4); }
 
@@ -154,6 +169,9 @@ const secondaryInsight = computed(() => {
   font-size: var(--lc-text-label);
   font-weight: var(--lc-weight-bold);
 }
+
+.badge-icon { display: inline-flex; width: 14px; height: 14px; flex-shrink: 0; }
+.badge-icon :deep(svg) { width: 14px; height: 14px; }
 
 .badge--alert    { background: rgba(239,68,68,0.15);  color: var(--lc-error);   }
 .badge--heads-up { background: rgba(245,158,11,0.15); color: var(--lc-warning); }
