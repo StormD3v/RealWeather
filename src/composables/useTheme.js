@@ -8,13 +8,10 @@
  * - On setTheme(): also writes preferences.theme to context store.
  * - The existing lumicast-theme localStorage key continues to work —
  *   this is deprecation preparation only. No existing behavior changes.
- *
- * useUserContext is imported lazily (dynamic import) to avoid init-time
- * circular dependency: useUserContext → contextMigration → contextStore,
- * and useTheme itself is used by App.vue before context is fully loaded.
  */
 
 import { ref } from 'vue'
+import { useUserContext } from '@/composables/useUserContext'
 
 const STORAGE_KEY = 'lumicast-theme'
 
@@ -46,29 +43,6 @@ function resolve(preference) {
 }
 
 // ---------------------------------------------------------------------------
-// Context sync helper — lazy so we don't import at module init time
-// ---------------------------------------------------------------------------
-
-let _setContextTheme = null
-
-async function _loadContextSetter() {
-    if (_setContextTheme) return _setContextTheme
-    try {
-        const mod = await import('@/composables/useUserContext.js')
-        _setContextTheme = (themeValue) => {
-            try {
-                mod.useUserContext().setContext({ preferences: { theme: themeValue } })
-            } catch {
-                // Context may not be ready — non-fatal
-            }
-        }
-    } catch {
-        _setContextTheme = null
-    }
-    return _setContextTheme
-}
-
-// ---------------------------------------------------------------------------
 // Exported composable
 // ---------------------------------------------------------------------------
 
@@ -78,11 +52,13 @@ export function useTheme() {
         localStorage.setItem(STORAGE_KEY, preference)
         applyTheme(resolve(preference))
 
-        // Phase 3.1: sync to context preferences (fire-and-forget)
+        // Phase 3.1: sync resolved theme to context preferences (fire-and-forget)
         const resolvedPref = resolve(preference) // 'dark' or 'light'
-        _loadContextSetter().then((setter) => {
-            if (setter) setter(resolvedPref)
-        }).catch(() => { })
+        try {
+            useUserContext().setContext({ preferences: { theme: resolvedPref } })
+        } catch {
+            // Context may not be ready — non-fatal
+        }
     }
 
     function toggleTheme() {
@@ -96,25 +72,23 @@ export function useTheme() {
         applyTheme(resolve(stored))
 
         // Phase 3.1: if context declares a theme preference, apply it.
-        // This runs async after context is loaded — does not block init.
-        _loadContextSetter().then(() => {
-            try {
-                // Read context directly to avoid circular dep
-                const raw = localStorage.getItem('lumi.context.v1')
-                if (raw) {
-                    const ctx = JSON.parse(raw)
-                    const ctxTheme = ctx?.preferences?.theme
-                    if ((ctxTheme === 'dark' || ctxTheme === 'light') &&
-                        ctxTheme !== resolvedTheme.value) {
-                        applyTheme(ctxTheme)
-                        theme.value = ctxTheme
-                        localStorage.setItem(STORAGE_KEY, ctxTheme)
-                    }
+        // Context is already initialized synchronously at module load by
+        // useUserContext's _initialize(), so this read is always safe.
+        try {
+            const raw = localStorage.getItem('lumi.context.v1')
+            if (raw) {
+                const ctx = JSON.parse(raw)
+                const ctxTheme = ctx?.preferences?.theme
+                if ((ctxTheme === 'dark' || ctxTheme === 'light') &&
+                    ctxTheme !== resolvedTheme.value) {
+                    applyTheme(ctxTheme)
+                    theme.value = ctxTheme
+                    localStorage.setItem(STORAGE_KEY, ctxTheme)
                 }
-            } catch {
-                // Context read failure — keep existing theme
             }
-        }).catch(() => { })
+        } catch {
+            // Context read failure — keep existing theme
+        }
 
         // Listen for system preference changes when mode is 'system'
         if (typeof window !== 'undefined') {

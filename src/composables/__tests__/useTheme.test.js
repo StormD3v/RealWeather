@@ -93,7 +93,7 @@ describe('useTheme (Phase 2)', () => {
         expect(resolvedTheme.value).toBe('light')
     })
 
-    it('initTheme reads context theme from lumi.context.v1 asynchronously', async () => {
+    it('initTheme reads context theme from lumi.context.v1 synchronously', () => {
         // Pre-populate context with light theme
         const ctx = {
             meta: { schemaVersion: '1.0.0', contextQuality: 'none', completeness: {}, createdAt: 0, lastModifiedAt: 0 },
@@ -111,24 +111,14 @@ describe('useTheme (Phase 2)', () => {
         }
         localStorage.setItem('lumi.context.v1', JSON.stringify(ctx))
 
-        // Directly test what initTheme does: reads context from localStorage
-        // and applies the theme. We verify that the light theme value from
-        // lumi.context.v1 is applied after the async chain resolves.
-        const { initTheme, resolvedTheme } = useTheme()
         // Set stored preference to dark first
         localStorage.setItem(STORAGE_KEY, 'dark')
+
+        const { initTheme, resolvedTheme } = useTheme()
         initTheme()
 
-        // The sync path resolves to dark (from lumicast-theme key)
-        expect(resolvedTheme.value).toBe('dark')
-
-        // Wait for the async context read chain to complete:
-        // _loadContextSetter (dynamic import) → .then() reads lumi.context.v1
-        // In test environment with jsdom, dynamic import resolves synchronously
-        // after the current microtask queue drains. We flush with multiple ticks.
-        await new Promise(r => setTimeout(r, 200))
-
-        // Context says light → should have applied
+        // initTheme now reads lumi.context.v1 synchronously.
+        // Context says light and overrides the stored dark preference.
         expect(resolvedTheme.value).toBe('light')
     })
 })
