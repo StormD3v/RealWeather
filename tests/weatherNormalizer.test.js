@@ -44,3 +44,80 @@ describe('normalizeWeather', () => {
     expect(normalized.forecast[0].snow['3h']).toBeNull()
   })
 })
+
+// ---------------------------------------------------------------------------
+// Phase 3.5 — Enrichment field passthrough
+// ---------------------------------------------------------------------------
+
+describe('normalizeWeather — Phase 3.5 enrichment passthrough', () => {
+
+  const baseRaw = {
+    dt: 100,
+    name: 'London',
+    main: { temp: 20, feels_like: 19, humidity: 55, pressure: 1013 },
+    wind: { speed: 10 },
+    weather: [{ main: 'Clear', description: 'clear sky', icon: '01d' }]
+  }
+
+  it('preserves rawCurrent.aqi when present', () => {
+    const raw = { ...baseRaw, aqi: 127 }
+    const normalized = normalizeWeather(raw, { list: [] })
+    expect(normalized.current.aqi).toBe(127)
+  })
+
+  it('preserves rawCurrent.aqi = 0 (good air quality — valid value)', () => {
+    const raw = { ...baseRaw, aqi: 0 }
+    const normalized = normalizeWeather(raw, { list: [] })
+    expect(normalized.current.aqi).toBe(0)
+  })
+
+  it('preserves rawCurrent.uv_index_enriched when present', () => {
+    const raw = { ...baseRaw, uv_index_enriched: 7.3 }
+    const normalized = normalizeWeather(raw, { list: [] })
+    expect(normalized.current.uv_index_enriched).toBe(7.3)
+  })
+
+  it('preserves both aqi and uv_index_enriched together', () => {
+    const raw = { ...baseRaw, aqi: 200, uv_index_enriched: 9.1 }
+    const normalized = normalizeWeather(raw, { list: [] })
+    expect(normalized.current.aqi).toBe(200)
+    expect(normalized.current.uv_index_enriched).toBe(9.1)
+  })
+
+  it('does NOT add aqi property when rawCurrent.aqi is null', () => {
+    const raw = { ...baseRaw, aqi: null }
+    const normalized = normalizeWeather(raw, { list: [] })
+    expect(normalized.current).not.toHaveProperty('aqi')
+  })
+
+  it('does NOT add aqi property when rawCurrent.aqi is absent', () => {
+    const normalized = normalizeWeather(baseRaw, { list: [] })
+    expect(normalized.current).not.toHaveProperty('aqi')
+  })
+
+  it('does NOT add uv_index_enriched when absent', () => {
+    const normalized = normalizeWeather(baseRaw, { list: [] })
+    expect(normalized.current).not.toHaveProperty('uv_index_enriched')
+  })
+
+  it('does NOT crash when rawCurrent is empty', () => {
+    expect(() => normalizeWeather({}, { list: [] })).not.toThrow()
+    const result = normalizeWeather({}, { list: [] })
+    expect(result.current).not.toHaveProperty('aqi')
+    expect(result.current).not.toHaveProperty('uv_index_enriched')
+  })
+
+  it('does NOT crash when rawCurrent is undefined', () => {
+    expect(() => normalizeWeather(undefined, { list: [] })).not.toThrow()
+  })
+
+  it('existing fields are not affected by enrichment passthrough', () => {
+    const raw = { ...baseRaw, aqi: 80, uv_index_enriched: 5 }
+    const normalized = normalizeWeather(raw, { list: [] })
+    // Verify core fields unchanged
+    expect(normalized.current.main.temp).toBe(20)
+    expect(normalized.current.wind.speed).toBe(10)
+    expect(normalized.current.weather[0].main).toBe('Clear')
+    expect(normalized.current.name).toBe('London')
+  })
+})

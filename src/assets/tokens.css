@@ -1,0 +1,253 @@
+/**
+ * LumiCast Design System — Token Layer
+ * All design decisions live here. Components reference these variables only.
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DARK THEME  (default — the primary/hero experience)
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+    /* ── Backgrounds ─────────────────────────────────────────────────────────── */
+    --lc-bg: #06101e;
+    --lc-bg-subtle: #0a1628;
+    --lc-surface: rgba(5, 18, 44, 0.82);
+    --lc-surface-raised: rgba(10, 22, 48, 0.92);
+    --lc-surface-glass: rgba(8, 20, 42, 0.65);
+    --lc-surface-shell: rgba(6, 16, 34, 0.68);
+    --lc-surface-overlay: rgba(255, 255, 255, 0.07);
+    --lc-surface-card: rgba(255, 255, 255, 0.07);
+    --lc-surface-inset: rgba(0, 0, 0, 0.20);
+    --lc-surface-input: rgba(255, 255, 255, 0.07);
+    --lc-surface-hover: rgba(255, 255, 255, 0.11);
+    --lc-surface-active: rgba(255, 255, 255, 0.17);
+
+    /* ── Brand / Accent ──────────────────────────────────────────────────────── */
+    --lc-accent: #27c063;
+    --lc-accent-hover: #1fa450;
+    --lc-accent-subtle: rgba(39, 192, 99, 0.15);
+    --lc-green: #27c063;
+    --lc-green-hover: #1fa450;
+    --lc-green-subtle: rgba(39, 192, 99, 0.14);
+    --lc-blue: #3b82f6;
+
+    /* ── Semantic ────────────────────────────────────────────────────────────── */
+    --lc-success: #22c55e;
+    --lc-success-subtle: rgba(34, 197, 94, 0.14);
+    --lc-warning: #f59e0b;
+    --lc-warning-subtle: rgba(245, 158, 11, 0.14);
+    --lc-error: #ef4444;
+    --lc-error-subtle: rgba(239, 68, 68, 0.14);
+    --lc-info: #3b82f6;
+    --lc-info-subtle: rgba(59, 130, 246, 0.14);
+    --lc-severe: #dc2626;
+    --lc-severe-subtle: rgba(220, 38, 38, 0.14);
+
+    /* ── Text ────────────────────────────────────────────────────────────────── */
+    --lc-text-primary: #f0f8ff;
+    --lc-text-secondary: rgba(224, 240, 255, 0.88);
+    --lc-text-muted: rgba(200, 225, 255, 0.62);
+    --lc-text-faint: rgba(180, 210, 255, 0.38);
+    --lc-text-inverted: #0f172a;
+    --lc-text-on-accent: #ffffff;
+
+    /* ── Borders ─────────────────────────────────────────────────────────────── */
+    --lc-border: rgba(255, 255, 255, 0.10);
+    --lc-border-subtle: rgba(255, 255, 255, 0.06);
+    --lc-border-strong: rgba(255, 255, 255, 0.22);
+    --lc-border-glass: rgba(255, 255, 255, 0.12);
+
+    /* ── Scroll fade gradient (matches shell bg) ─────────────────────────────── */
+    --lc-scroll-fade: rgba(6, 16, 34, 0.70);
+
+    /* ── Weather ─────────────────────────────────────────────────────────────── */
+    --lc-rain-color: #4fc3f7;
+    --lc-snow-color: #bde0ff;
+    --lc-sun-color: #ffd166;
+    --lc-sun-color-light: #ffe59a;
+    /* sun radial gradient — inner glow */
+    --lc-sun-color-deep: #ffb100;
+    /* sun radial gradient — outer warmth */
+    --lc-cloud-fill: #dbe7ff;
+    /* cloud body fill (cloud, rain, snow, storm, fog) */
+    --lc-fog-line: #cbd5f5;
+    /* fog horizontal line strokes */
+    --lc-storm-color: #a855f7;
+    --lc-temp-hot: rgba(239, 68, 68, 0.9);
+    --lc-temp-cold: rgba(59, 130, 246, 0.9);
+
+    /* ── Typography ──────────────────────────────────────────────────────────── */
+    --lc-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+    --lc-text-hero: clamp(2.5rem, 6vw, 4rem);
+    --lc-text-display: clamp(2rem, 4vw, 2.8rem);
+    --lc-text-h1: clamp(1.6rem, 3vw, 2rem);
+    --lc-text-h2: clamp(1.3rem, 2.5vw, 1.5rem);
+    --lc-text-h3: 1.0625rem;
+    --lc-text-title: 1rem;
+    --lc-text-subtitle: 0.9375rem;
+    --lc-text-body-lg: 1rem;
+    --lc-text-body: 0.9375rem;
+    --lc-text-body-sm: 0.875rem;
+    --lc-text-caption: 0.8125rem;
+    --lc-text-label: 0.75rem;
+    --lc-text-label-sm: 0.6875rem;
+
+    --lc-weight-regular: 400;
+    --lc-weight-medium: 500;
+    --lc-weight-semibold: 600;
+    --lc-weight-bold: 700;
+    --lc-weight-extrabold: 800;
+
+    --lc-leading-tight: 1.15;
+    --lc-leading-snug: 1.3;
+    --lc-leading-normal: 1.5;
+    --lc-leading-relaxed: 1.65;
+
+    --lc-tracking-tight: -0.02em;
+    --lc-tracking-normal: 0;
+    --lc-tracking-wide: 0.04em;
+    --lc-tracking-wider: 0.08em;
+
+    /* ── Spacing ─────────────────────────────────────────────────────────────── */
+    --lc-sp-1: 4px;
+    --lc-sp-2: 8px;
+    --lc-sp-3: 12px;
+    --lc-sp-4: 16px;
+    --lc-sp-5: 20px;
+    --lc-sp-6: 24px;
+    --lc-sp-7: 28px;
+    --lc-sp-8: 32px;
+    --lc-sp-10: 40px;
+    --lc-sp-12: 48px;
+    --lc-sp-16: 64px;
+
+    /* ── Border Radius ───────────────────────────────────────────────────────── */
+    --lc-radius-sm: 6px;
+    --lc-radius-md: 10px;
+    --lc-radius-lg: 14px;
+    --lc-radius-xl: 18px;
+    --lc-radius-2xl: 22px;
+    --lc-radius-3xl: 26px;
+    --lc-radius-pill: 999px;
+    --lc-radius-full: 50%;
+
+    /* ── Shadows ─────────────────────────────────────────────────────────────── */
+    --lc-shadow-surface: 0 1px 3px rgba(0, 0, 0, 0.25);
+    --lc-shadow-raised: 0 4px 14px rgba(0, 0, 0, 0.30);
+    --lc-shadow-floating: 0 8px 24px rgba(0, 0, 0, 0.38);
+    --lc-shadow-modal: 0 24px 60px rgba(0, 0, 0, 0.55);
+    --lc-shadow-glass: 0 8px 18px rgba(5, 12, 30, 0.22);
+    --lc-shadow-hover: 0 12px 28px rgba(5, 17, 35, 0.28);
+    --lc-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.20);
+    --lc-shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.18);
+
+    /* ── Motion ──────────────────────────────────────────────────────────────── */
+    --lc-duration-fast: 100ms;
+    --lc-duration-normal: 200ms;
+    --lc-duration-slow: 350ms;
+    --lc-duration-slower: 550ms;
+
+    --lc-ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --lc-ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --lc-ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --lc-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    --lc-transition-base: var(--lc-duration-normal) var(--lc-ease);
+    --lc-transition-hover: var(--lc-duration-fast) var(--lc-ease-out);
+    --lc-transition-enter: var(--lc-duration-slow) var(--lc-ease-out);
+    --lc-transition-theme: var(--lc-duration-slow) var(--lc-ease);
+
+    /* ── Blur ────────────────────────────────────────────────────────────────── */
+    --lc-blur-sm: blur(8px);
+    --lc-blur-md: blur(14px);
+    --lc-blur-lg: blur(24px);
+    --lc-blur-xl: blur(40px);
+
+    /* ── Z-index ─────────────────────────────────────────────────────────────── */
+    --lc-z-base: 0;
+    --lc-z-card: 1;
+    --lc-z-shell: 10;
+    --lc-z-header: 20;
+    --lc-z-dropdown: 30;
+    --lc-z-modal: 40;
+    --lc-z-toast: 50;
+    --lc-z-overlay: 60;
+    --lc-z-tooltip: 70;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIGHT THEME  (explicit overrides — applied via html.light)
+   ═══════════════════════════════════════════════════════════════════════════ */
+html.light {
+    /* ── Backgrounds ─────────────────────────────────────────────────────────── */
+    --lc-bg: #dce6f5;
+    --lc-bg-subtle: #e8eef8;
+    /* Solid card surfaces so content is always readable */
+    --lc-surface: rgba(255, 255, 255, 0.96);
+    --lc-surface-raised: #ffffff;
+    --lc-surface-glass: rgba(255, 255, 255, 0.88);
+    --lc-surface-shell: rgba(245, 248, 255, 0.82);
+    /* Inset elements (stat chips, hour items, factor chips) */
+    --lc-surface-overlay: rgba(30, 60, 110, 0.07);
+    --lc-surface-card: rgba(255, 255, 255, 0.90);
+    --lc-surface-inset: rgba(0, 0, 0, 0.04);
+    --lc-surface-input: rgba(255, 255, 255, 0.92);
+    --lc-surface-hover: rgba(30, 60, 110, 0.09);
+    --lc-surface-active: rgba(30, 60, 110, 0.14);
+
+    /* ── Brand / Accent ──────────────────────────────────────────────────────── */
+    --lc-accent: #1d52d8;
+    --lc-accent-hover: #163fb8;
+    --lc-accent-subtle: rgba(29, 82, 216, 0.10);
+    --lc-green: #16a34a;
+    --lc-green-hover: #15803d;
+    --lc-green-subtle: rgba(22, 163, 74, 0.10);
+
+    /* ── Semantic ────────────────────────────────────────────────────────────── */
+    --lc-success: #16a34a;
+    --lc-success-subtle: rgba(22, 163, 74, 0.10);
+    --lc-warning: #d97706;
+    --lc-warning-subtle: rgba(217, 119, 6, 0.10);
+    --lc-error: #dc2626;
+    --lc-error-subtle: rgba(220, 38, 38, 0.10);
+    --lc-info: #1d52d8;
+    --lc-info-subtle: rgba(29, 82, 216, 0.10);
+    --lc-severe: #b91c1c;
+    --lc-severe-subtle: rgba(185, 28, 28, 0.10);
+
+    /* ── Text — all use opaque dark values for WCAG AA compliance ────────────── */
+    --lc-text-primary: #0f172a;
+    --lc-text-secondary: #1e3050;
+    --lc-text-muted: #475569;
+    --lc-text-faint: #94a3b8;
+    --lc-text-inverted: #ffffff;
+    --lc-text-on-accent: #ffffff;
+
+    /* ── Borders — visible on light surfaces ─────────────────────────────────── */
+    --lc-border: rgba(148, 163, 184, 0.45);
+    --lc-border-subtle: rgba(148, 163, 184, 0.25);
+    --lc-border-strong: rgba(100, 116, 139, 0.60);
+    --lc-border-glass: rgba(148, 163, 184, 0.35);
+
+    /* ── Scroll fade — matches light shell ───────────────────────────────────── */
+    --lc-scroll-fade: rgba(220, 230, 245, 0.85);
+
+    /* ── Weather accent colours stay vibrant ────────────────────────────────── */
+    --lc-rain-color: #0284c7;
+    --lc-cloud-fill: #c8d8f0;
+    /* deeper on white backgrounds */
+    --lc-fog-line: #a8b8d8;
+    --lc-sun-color-light: #fff0b0;
+    --lc-sun-color-deep: #e8a000;
+    --lc-temp-hot: #dc2626;
+    --lc-temp-cold: #1d4ed8;
+
+    /* ── Shadows — more visible on light ────────────────────────────────────── */
+    --lc-shadow-surface: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
+    --lc-shadow-raised: 0 4px 12px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.06);
+    --lc-shadow-floating: 0 8px 20px rgba(0, 0, 0, 0.12), 0 4px 10px rgba(0, 0, 0, 0.07);
+    --lc-shadow-modal: 0 20px 50px rgba(0, 0, 0, 0.22), 0 8px 20px rgba(0, 0, 0, 0.12);
+    --lc-shadow-glass: 0 4px 14px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.05);
+    --lc-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+    --lc-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.04);
+}

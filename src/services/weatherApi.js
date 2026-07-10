@@ -3,7 +3,25 @@ import { buildWeatherCacheKey, readWeatherCache, writeWeatherCache } from '@/uti
 const GEOCODE_URL = 'https://geocoding-api.open-meteo.com/v1/search'
 const REVERSE_GEOCODE_URL = 'https://nominatim.openstreetmap.org/reverse'
 const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast'
+const AIR_QUALITY_URL = 'https://air-quality-api.open-meteo.com/v1/air-quality'
 const CACHE_TTL_MS = 15 * 60 * 1000
+const AQ_CACHE_KEY_PREFIX = 'lumi.aq.v1'
+
+/**
+ * Factor to convert EU AQI (0–100 scale) to a normalized internal AQI
+ * compatible with the US-scale thresholds used in escalateAirQuality().
+ *
+ * EU AQI 100 (very poor) ≈ US AQI 250 (very unhealthy).
+ * Multiplying by 2.5 maps the EU 0–100 range into a 0–250 range
+ * that slots correctly into the US-scale urgency thresholds:
+ *   EU < 21  → normalized < 53  → null   (good)
+ *   EU 21–40 → normalized 53–100 → useful
+ *   EU 41–60 → normalized 103–150 → heads-up
+ *   EU > 60  → normalized > 150  → alert
+ *
+ * @constant {number}
+ */
+const EU_TO_US_AQI_FACTOR = 2.5
 
 function buildGeocodeUrl(city) {
   const params = new URLSearchParams({
@@ -102,6 +120,67 @@ function resolveErrorMessage(response, payload, params) {
       : 'Location not found. Please try a different search.'
   }
   return payload?.message || 'Unable to fetch weather data.'
+}
+
+function buildAirQualityUrl(lat, lon) {
+  const params = new URLSearchParams({
+    latitude: String(lat),
+    longitude: String(lon),
+    current: 'european_aqi,uv_index',
+    timezone: 'auto'
+  })
+  return `${AIR_QUALITY_URL}?${params}`
+}
+
+/**
+ * Fetches air quality enrichment data (AQI and UV index) from the
+ * Open-Meteo air quality endpoint.
+ *
+ * This call is OPTIONAL — it never blocks weather loading.
+ * On any failure, returns a null-filled sentinel so the caller
+ * can proceed with weather data and simply omit environmental fields.
+ *
+ * AQI normalization: EU AQI (0–100) is multiplied by EU_TO_US_AQI_FACTOR (2.5)
+ * to produce an internal value compatible with escalateAirQuality() thresholds.
+ *
+ * @param {number} lat
+ * @param {number} lon
+ * @param {AbortSignal|null} signal
+ * @returns {Promise<{aqi: number|null, uvIndex: number|null}>}
+ */
+async function fetchAirQuality(lat, lon, signal) {
+  // Check air quality cache first
+  const aqCacheKey = `${AQ_CACHE_KEY_PREFIX}.${lat.toFixed(4)}.${lon.toFixed(4)}`
+  const cached = readWeatherCache(aqCacheKey, CACHE_TTL_MS)
+  if (cached.fresh && cached.data) {
+    return cached.data
+  }
+
+  try {
+    const url = buildAirQualityUrl(lat, lon)
+    const response = await safeFetch(url, { signal })
+    if (!response.ok) {
+      return { aqi: null, uvIndex: null }
+    }
+    const data = await parseJsonSafe(response)
+    const euAqi = data?.current?.european_aqi
+    const uvIndex = data?.current?.uv_index
+
+    const aqi = (typeof euAqi === 'number' && Number.isFinite(euAqi) && euAqi >= 0)
+      ? Math.round(euAqi * EU_TO_US_AQI_FACTOR)
+      : null
+
+    const uv = (typeof uvIndex === 'number' && Number.isFinite(uvIndex) && uvIndex >= 0)
+      ? uvIndex
+      : null
+
+    const result = { aqi, uvIndex: uv }
+    writeWeatherCache(aqCacheKey, result)
+    return result
+  } catch {
+    // Air quality failure must never surface to the user
+    return { aqi: null, uvIndex: null }
+  }
 }
 
 async function geocodeCity(city) {
@@ -340,7 +419,25 @@ export async function fetchWeatherBundle(params, options = {}) {
 
   try {
     console.log('[weather-api] Making request to:', url)
-    const response = await safeFetch(url, { signal: options.signal })
+
+    // Run weather fetch and air quality enrichment in parallel.
+    // Weather is authoritative — air quality failure is non-blocking.
+    const [weatherSettled, aqSettled] = await Promise.allSettled([
+      safeFetch(url, { signal: options.signal }),
+      fetchAirQuality(lat, lon, options.signal ?? null)
+    ])
+
+    // Air quality — never throws, always returns a value
+    const aqData = aqSettled.status === 'fulfilled'
+      ? aqSettled.value
+      : { aqi: null, uvIndex: null }
+
+    // Weather is authoritative — propagate any error
+    if (weatherSettled.status === 'rejected') {
+      throw weatherSettled.reason
+    }
+
+    const response = weatherSettled.value
     console.log('[weather-api] Response status:', response.status, response.statusText)
 
     const openMeteoData = await parseJsonSafe(response)
@@ -356,8 +453,17 @@ export async function fetchWeatherBundle(params, options = {}) {
     const transformedData = transformOpenMeteo(openMeteoData, lat, lon, locationName)
     console.log('[weather-api] Transformed data:', transformedData)
 
+    // Merge enrichment into current weather object:
+    // - aqi: normalized AQI (EU × 2.5 factor) from air quality endpoint
+    // - uv_index_enriched: more precise UV from air quality endpoint (preferred over forecast-derived)
+    const enrichedCurrent = {
+      ...transformedData.current,
+      ...(aqData.aqi !== null ? { aqi: aqData.aqi } : {}),
+      ...(aqData.uvIndex !== null ? { uv_index_enriched: aqData.uvIndex } : {})
+    }
+
     const bundle = {
-      current: transformedData.current,
+      current: enrichedCurrent,
       forecast: transformedData.forecast,
       daily: transformedData.daily
     }

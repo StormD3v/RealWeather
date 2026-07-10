@@ -37,16 +37,29 @@ export function generateWeatherInsights(normalizedWeather) {
     conditionLower.includes('drizzle') ||
     conditionLower.includes('thunder')
 
+  // ── Severe conditions first — must never be cut off by the slice cap ────────
+  if (condition === 'Thunderstorm') {
+    insights.push(insight('Thunderstorm conditions detected. Minimize outdoor exposure.', 'severe'))
+  }
+
+  if (temp > 35 || feelsLike > 35) {
+    insights.push(insight('Extreme heat risk — hydrate and limit prolonged sun exposure.', 'severe'))
+  }
+
+  if (temp < 0 || feelsLike < 0) {
+    insights.push(insight('Extreme cold conditions — dress in layers and limit outdoor time.', 'severe'))
+  }
+
+  // ── Rain / precipitation warnings ────────────────────────────────────────────
   if (isRainy) {
     insights.push(insight('Best time: Wait for rain to stop before going outside. Check back later.', 'warning'))
     insights.push(insight('Rain alert: High chance of rain today. Keep an umbrella handy.', 'warning'))
   }
 
-  // Rain-based insights
   if (precipitation > 2) {
     insights.push({
-      type: "weather-alert",
-      message: "Rain expected. Outdoor activity and customer flow may decrease."
+      type: 'weather-alert',
+      message: 'Rain expected. Outdoor activity and customer flow may decrease.'
     })
   }
 
@@ -90,18 +103,6 @@ export function generateWeatherInsights(normalizedWeather) {
     insights.push(
       insight(`Heavy precipitation likely today (${round(rainIn24h)} mm total expected).`, 'warning')
     )
-  }
-
-  if (condition === 'Thunderstorm') {
-    insights.push(insight('Thunderstorm conditions detected. Minimize outdoor exposure.', 'severe'))
-  }
-
-  if (temp > 35 || feelsLike > 35) {
-    insights.push(insight('Extreme heat risk — hydrate and limit prolonged sun exposure.', 'severe'))
-  }
-
-  if (temp < 0 || feelsLike < 0) {
-    insights.push(insight('Extreme cold conditions — dress in layers and limit outdoor time.', 'severe'))
   }
 
   if (daily.length >= 2) {

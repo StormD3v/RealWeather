@@ -161,6 +161,18 @@ export function normalizeWeather(rawCurrent = {}, rawForecast = {}) {
     }
   }
 
+  // Phase 3.5 — explicitly preserve enrichment fields added by weatherApi.js.
+  // These fields are not part of the standard weather response shape, so the
+  // normalizer must carry them forward explicitly rather than ignore them.
+  // aqi             — EU AQI × 2.5 (normalized to US scale), may be null
+  // uv_index_enriched — precise UV from air quality endpoint, may be null
+  if (rawCurrent?.aqi != null) {
+    current.aqi = rawCurrent.aqi
+  }
+  if (rawCurrent?.uv_index_enriched != null) {
+    current.uv_index_enriched = rawCurrent.uv_index_enriched
+  }
+
   const allForecastSlots = Array.isArray(rawForecast?.list)
     ? rawForecast.list.map(normalizeForecastSlot)
     : []

@@ -1,8 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+/* ── Design token layer ─────────────────────────────────────────────────── */
+@import './tokens.css';
+
+/* ── Google Fonts ───────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&display=swap');
+
+/* ── Tailwind CSS ───────────────────────────────────────────────────────── */
 @import "tailwindcss";
 
+/* ══════════════════════════════════════════════════════════════════════════
+   GLOBAL RESETS & BASE
+   ══════════════════════════════════════════════════════════════════════════ */
 html {
   overflow-x: hidden;
+  /* Smooth theme transitions */
+  transition: background-color var(--lc-transition-theme),
+    color var(--lc-transition-theme);
 }
 
 *,
@@ -16,8 +28,12 @@ body,
 #app {
   max-width: 100%;
   overflow-x: hidden;
+  font-family: var(--lc-font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Minimum touch target size for interactive elements */
 button,
 input,
 select,
@@ -33,30 +49,255 @@ main {
   max-width: 100%;
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   FOCUS VISIBLE — accessible keyboard navigation
+   ══════════════════════════════════════════════════════════════════════════ */
+:focus-visible {
+  outline: 2px solid var(--lc-accent);
+  outline-offset: 3px;
+  border-radius: var(--lc-radius-sm);
+}
+
+/* Remove outline for mouse interactions */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SCROLLBAR
+   ══════════════════════════════════════════════════════════════════════════ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--lc-border-strong);
+  border-radius: var(--lc-radius-pill);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--lc-text-faint);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MOBILE PADDING RESETS
+   ══════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 600px) {
+
   .header-section,
   .dashboard-section,
   .empty-card {
     max-width: 100%;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: var(--lc-sp-4);
+    padding-right: var(--lc-sp-4);
   }
 }
 
-:root {
-  --bg-main: #ffffff;
-  --card-bg: #f5f7fb;
-  --text-main: #0f172a;
-  --glass: rgba(255, 255, 255, 0.05);
-  --line: rgba(255, 255, 255, 0.1);
-  --muted: rgba(255, 255, 255, 0.6);
+/* ══════════════════════════════════════════════════════════════════════════
+   HOURLY DECISION TIMELINE  (hdt-* classes — rendered by HourlyDecisionTimeline.tsx)
+   Must be global so the render-function component can use them.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.hdt-root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lc-sp-4);
+  /* Remove any legacy overrides injected by App.vue */
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
-.dark {
-  --bg-main: #0f172a;
-  --card-bg: #1e293b;
-  --text-main: #f8fafc;
-  --glass: rgba(255, 255, 255, 0.05);
-  --line: rgba(255, 255, 255, 0.1);
-  --muted: rgba(255, 255, 255, 0.6);
+.hdt-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lc-sp-1);
+}
+
+.hdt-title {
+  margin: 0;
+  font-size: var(--lc-text-h3) !important;
+  font-weight: var(--lc-weight-semibold) !important;
+  color: var(--lc-text-primary) !important;
+  letter-spacing: var(--lc-tracking-normal) !important;
+  line-height: var(--lc-leading-tight);
+}
+
+.hdt-subtitle {
+  margin: 0;
+  font-size: var(--lc-text-caption);
+  color: var(--lc-text-muted);
+  font-weight: var(--lc-weight-medium);
+}
+
+/* Scroll container */
+.hdt-scroll {
+  display: flex;
+  gap: var(--lc-sp-3);
+  overflow-x: auto;
+  overflow-y: visible;
+  padding-bottom: var(--lc-sp-2);
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.hdt-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Edge fade indicator */
+.hdt-scroll::after {
+  content: '';
+  flex-shrink: 0;
+  width: 1px;
+  /* spacer — parent card handles the gradient */
+}
+
+/* Individual hour card */
+.hdt-card {
+  flex: 0 0 auto;
+  width: 140px;
+  min-width: 130px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--lc-sp-2);
+  padding: var(--lc-sp-4);
+  background: var(--lc-surface-overlay);
+  border: 1px solid var(--lc-border-glass);
+  border-radius: var(--lc-radius-lg);
+  transition: background var(--lc-duration-fast) var(--lc-ease-out),
+    transform var(--lc-duration-fast) var(--lc-ease-out),
+    box-shadow var(--lc-duration-fast) var(--lc-ease-out);
+  cursor: default;
+}
+
+.hdt-card:hover {
+  background: var(--lc-surface-raised);
+  transform: translateY(-2px);
+  box-shadow: var(--lc-shadow-raised);
+}
+
+/* Time label */
+.hdt-time {
+  margin: 0;
+  font-size: var(--lc-text-label);
+  font-weight: var(--lc-weight-bold);
+  color: var(--lc-text-muted);
+  letter-spacing: var(--lc-tracking-wide);
+  text-transform: uppercase;
+}
+
+/* Icon wrapper */
+.hdt-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hdt-icon svg {
+  width: 32px;
+  height: 32px;
+  display: block;
+}
+
+/* Temperature */
+.hdt-temp {
+  margin: 0;
+  font-size: var(--lc-text-title);
+  font-weight: var(--lc-weight-bold);
+  color: var(--lc-text-primary);
+  line-height: 1;
+}
+
+/* Rain / condition badge */
+.hdt-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px var(--lc-sp-2);
+  border-radius: var(--lc-radius-pill);
+  font-size: var(--lc-text-label-sm);
+  font-weight: var(--lc-weight-bold);
+  letter-spacing: var(--lc-tracking-wide);
+  width: fit-content;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.hdt-badge--clear {
+  background: var(--lc-success-subtle);
+  color: var(--lc-success);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.hdt-badge--caution {
+  background: var(--lc-warning-subtle);
+  color: var(--lc-warning);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.hdt-badge--rain {
+  background: var(--lc-info-subtle);
+  color: var(--lc-info);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+/* Recommendation text */
+.hdt-rec {
+  margin: 0;
+  font-size: var(--lc-text-label);
+  font-weight: var(--lc-weight-medium);
+  color: var(--lc-text-secondary);
+  line-height: var(--lc-leading-snug);
+}
+
+/* ── Mobile sizing ── */
+@media (max-width: 600px) {
+  .hdt-card {
+    width: 118px;
+    min-width: 110px;
+    padding: var(--lc-sp-3);
+    gap: var(--lc-sp-2);
+  }
+
+  .hdt-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .hdt-icon svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .hdt-temp {
+    font-size: var(--lc-text-body-sm);
+  }
+
+  .hdt-rec {
+    font-size: var(--lc-text-label-sm);
+  }
 }

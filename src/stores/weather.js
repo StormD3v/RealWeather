@@ -8,6 +8,7 @@ import {
   generateActivityRecommendations
 } from '@/services/weatherProductMetrics'
 
+// Module-level request tracking — not reactive, intentionally outside state
 let activeRequestId = 0
 let activeController = null
 
@@ -17,21 +18,36 @@ export const useWeatherStore = defineStore('weather', {
     forecast: [],
     hourlyForecast: shallowRef([]),
     hourlyTrend: [],
-    impactScore: {
-      score: 0,
-      label: 'Severe'
-    },
+    impactScore: { score: 0, label: 'Severe' },
     activityRecommendations: [],
-    trendIndicators: {
-      temperature: 'flat',
-      humidity: 'flat'
-    },
+    trendIndicators: { temperature: 'flat', humidity: 'flat' },
     loading: false,
     error: null,
     staleCacheWarning: null,
     lastSource: null,
     lastUpdatedAt: null
   }),
+
+  getters: {
+    /** Normalised condition string from the current weather response. */
+    currentCondition: (state) => state.currentWeather?.weather?.[0]?.main || '',
+
+    /** Icon code from the current weather response (e.g. "01d"). */
+    currentIcon: (state) => state.currentWeather?.weather?.[0]?.icon || '',
+
+    /** Daily forecast capped to 7 days. */
+    dailyForecast: (state) => state.forecast?.slice(0, 7) ?? [],
+
+    /** True when a stale-cache warning is active. */
+    isStale: (state) => state.staleCacheWarning !== null,
+
+    /** Bundled data object consumed by WeatherCopilot and HourlyDecisionTimeline. */
+    sharedWeatherData: (state) => ({
+      currentWeather: state.currentWeather || null,
+      hourlyForecast: state.hourlyForecast || [],
+      impactScore: state.impactScore || { score: 0, label: 'Severe' }
+    })
+  },
 
   actions: {
     async fetchWeatherByParams(params) {
@@ -66,33 +82,28 @@ export const useWeatherStore = defineStore('weather', {
         this.lastSource = bundle.source || 'network'
         this.lastUpdatedAt = bundle.servedAt ?? Date.now()
 
-        if (bundle.source === 'stale-cache') {
-          this.staleCacheWarning = 'Showing cached data — live update failed'
-        } else {
-          this.staleCacheWarning = null
-        }
+        this.staleCacheWarning =
+          bundle.source === 'stale-cache'
+            ? 'Showing cached data — live update failed'
+            : null
 
         this.loading = false
-        return
       } catch (error) {
         if (error?.name === 'AbortError') {
+          this.loading = false
           return
         }
-
         if (requestId !== activeRequestId) return
 
         const message = String(error?.message || '')
-        const isNotFoundError = /city not found|location not found/i.test(message)
+        const isNotFound = /city not found|location not found/i.test(message)
 
-        if (isNotFoundError) {
-          this.error = 'City not found. Please check the name and try again.'
-        } else {
-          this.error = message || 'Could not load weather. Check your connection and try again.'
-        }
+        this.error = isNotFound
+          ? 'City not found. Please check the name and try again.'
+          : message || 'Could not load weather. Check your connection and try again.'
 
         console.error('[weather-store] fetch failed', { params, message, error })
         this.loading = false
-        return
       }
     },
 
